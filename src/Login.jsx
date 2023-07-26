@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useInputState } from "@mantine/hooks";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { CircleCheck, AlertCircle } from "tabler-icons-react";
 import { Link } from "react-router-dom";
 import RegistrationPage from "./components/Regestration";
 
@@ -31,6 +31,7 @@ const Login = ({ onLogin }) => {
         title: "Login Successful",
         message: "Welcome back!",
         color: "teal",
+        icon: <CircleCheck size={24} color="white" />,
       });
       onLogin();
     } else {
@@ -39,7 +40,8 @@ const Login = ({ onLogin }) => {
       notifications.show({
         title: "Invalid Credentials",
         message: "Please Check",
-        color: "Red",
+        color: "red",
+        icon: <AlertCircle size={24} color="black" />,
       });
     }
   };

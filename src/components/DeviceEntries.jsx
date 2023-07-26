@@ -5,14 +5,30 @@ import {
   Pagination,
   Text,
   useMantineTheme,
+  Card,
   Grid,
   Modal,
 } from "@mantine/core";
+
+import LazyLoad from "react-lazy-load";
+import { notifications } from "@mantine/notifications";
+
+import {
+  Map,
+  Marker,
+  GeolocateControl,
+  NavigationControl,
+  Popup,
+} from "react-map-gl";
+
+const MAPBOX_TOKEN =
+  "pk.eyJ1Ijoic2tpcm8iLCJhIjoiY2w1aTZjN2x2MDI3ODNkcHp0cnhuZzVicSJ9.HMjwHtHf_ttkh_aImSX-oQ";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString();
 };
+
 const DeviceEntries = () => {
   const [data, setData] = useState([]);
   const theme = useMantineTheme();
@@ -33,7 +49,7 @@ const DeviceEntries = () => {
   }, []);
   console.log("mysql", data);
 
-  //Table Code
+  // Table Code
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
@@ -61,14 +77,48 @@ const DeviceEntries = () => {
   };
   const handleRowClick = (row) => {
     setSelectedEntry(row);
+
+    // Check if next_collection date has passed the current date
+    const nextCollectionDate = new Date(row.next_collection);
+    const currentDate = new Date();
+
+    if (nextCollectionDate < currentDate) {
+      // Show a notification
+      notifications.show({
+        title: "Date Passed",
+        message: `Next Collection date for ID ${row.id} (Pit: ${row.pitName}) has passed.`,
+        color: "red",
+        dismiss: null, // Set to null to make the notification stay until the user clicks on it
+      });
+
+      // Change the color of the selected table row to indicate the case
+    } else {
+      // If the next_collection date is valid (not passed), clear the modal message and reset row colors
+      setModalMessage(null);
+    }
   };
+
+  useEffect(() => {
+    data.forEach((entry) => {
+      const nextCollectionDate = new Date(entry.next_collection);
+      const currentDate = new Date();
+      if (nextCollectionDate < currentDate) {
+        notifications.show({
+          title: "Date Passed",
+          message: `Next Collection date for ID ${entry.id} (Pit: ${entry.pitName}) has passed.`,
+          color: "red",
+          dismiss: null,
+        });
+      }
+    });
+  }, [data]);
 
   return (
     <div>
       <h1>Saved Data</h1>
-      <Grid mt="xl">
-        <Grid.Col md={4} lg={4}></Grid.Col>
-        <Grid.Col md={4} lg={4}>
+      <Grid container alignItems="stretch">
+        <Grid.Col md={2} lg={1}></Grid.Col>
+        <Grid.Col xs={12} sm={6} md={6} lg={3} style={{ flex: 1 }}>
           <div>
             <Table
               striped
@@ -83,60 +133,22 @@ const DeviceEntries = () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  {/* <th>Longitude</th>
-                <th>Latitude</th>
-
-                <th>Name</th> */}
                   <th>Resistance</th>
                   <th>Date Collected</th>
                   <th>Next_collection</th>
-
-                  {/* Add more column headers as needed */}
                 </tr>
               </thead>
               <tbody>
                 {getPaginatedData().map((row) => (
                   <tr key={row.id} onClick={() => handleRowClick(row)}>
-                    {" "}
-                    {/* Use the ID field (assuming it's row[0]) as the key */}
                     <td>{row.id}</td>
-                    {/* <td>{row.longitude}</td>
-                  <td>{row.latitude}</td>
-                  <td>{row.name}</td> */}
                     <td>{row.resistance}</td>
                     <td>{formatDate(row.date_collected)}</td>
                     <td>{formatDate(row.next_collection)}</td>
-                    {/* Render additional row data as needed */}
                   </tr>
                 ))}
               </tbody>
             </Table>
-            {selectedEntry && (
-              <Modal
-                opened={!!selectedEntry}
-                onClose={() => setSelectedEntry(null)}
-                title={`Details of the Entry ID ${selectedEntry.id}`}
-                overflow="outside"
-              >
-                {" "}
-                <div>
-                  <Text mt="xl">Title: {selectedEntry.title}</Text>
-                  <Text mt="xl">Name: {selectedEntry.name}</Text>
-                  <Text mt="xl">Longitude: {selectedEntry.longitude}</Text>
-                  <Text mt="xl">Latitude: {selectedEntry.latitude}</Text>
-                  <Text mt="xl">Resistance: {selectedEntry.resistance}</Text>
-                  <Text mt="xl">
-                    Date Collected: {formatDate(selectedEntry.date_collected)}
-                  </Text>
-                  <Text mt="xl">
-                    Next Collection: {formatDate(selectedEntry.next_collection)}
-                  </Text>
-                  <Text mt="xl">Description: {selectedEntry.description}</Text>
-                  {/* Add more fields here as needed */}
-                </div>
-              </Modal>
-            )}
-
             {totalPages > 1 && (
               <Pagination
                 total={totalPages}
@@ -158,8 +170,62 @@ const DeviceEntries = () => {
             {data.length === 0 && <Text>No data available.</Text>}
           </div>
         </Grid.Col>
-        <Grid.Col md={4} lg={4}></Grid.Col>
+        <Grid.Col xs={12} sm={6} md={6} lg={6} style={{ flex: 2 }}>
+          <Card style={{ height: "100%", overflow: "hidden" }}>
+            <LazyLoad>
+              <Map
+                style={{ width: "100%", height: 400 }}
+                initialViewState={{
+                  latitude: 23.1957247,
+                  longitude: 77.7908816,
+                  zoom: 3.5,
+                }}
+                mapStyle="mapbox://styles/mapbox/streets-v9"
+                mapboxAccessToken={MAPBOX_TOKEN}
+              >
+                {data.map((entry) => (
+                  <Marker
+                    key={entry.id}
+                    longitude={entry.longitude}
+                    latitude={entry.latitude}
+                    offsetLeft={-12}
+                    offsetTop={-24}
+                    color="red"
+                  >
+                    {/* You can customize the marker by using a custom SVG icon */}
+                  </Marker>
+                ))}
+                <GeolocateControl position="top-left" />
+                <NavigationControl position="top-left" />
+              </Map>
+            </LazyLoad>
+          </Card>
+        </Grid.Col>
       </Grid>
+      {selectedEntry && (
+        <Modal
+          opened={!!selectedEntry}
+          onClose={() => setSelectedEntry(null)}
+          title={`Details of the Entry ID ${selectedEntry.id}`}
+          overflow="outside"
+        >
+          <div>
+            <Text mt="xl">Title: {selectedEntry.title}</Text>
+            <Text mt="xl">Name: {selectedEntry.name}</Text>
+            <Text mt="xl">Longitude: {selectedEntry.longitude}</Text>
+            <Text mt="xl">Latitude: {selectedEntry.latitude}</Text>
+            <Text mt="xl">Resistance: {selectedEntry.resistance}</Text>
+            <Text mt="xl">
+              Date Collected: {formatDate(selectedEntry.date_collected)}
+            </Text>
+            <Text mt="xl">
+              Next Collection: {formatDate(selectedEntry.next_collection)}
+            </Text>
+            <Text mt="xl">Description: {selectedEntry.description}</Text>
+            {/* Add more fields here as needed */}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

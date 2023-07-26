@@ -51,8 +51,8 @@ function App() {
     // Perform logout logic here...
     notifications.show({
       title: "Thank you",
-      message: "Please Check",
-      color: "Red",
+      message: "shahin is best!!!",
+      color: "indigo",
     });
     setLoggedIn(false);
   };
@@ -150,26 +150,23 @@ function App() {
                 hidden={!opened}
                 hiddenBreakpoint="sm"
               >
-                {views.map((view, index) => (
-                  <Link
-                    to={view.path}
-                    key={index}
-                    onClick={() => setOpened(false)}
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
-                  >
-                    <Group>
-                      <Text>{view.name}</Text>
-                    </Group>
-                  </Link>
-                ))}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 10,
-                    left: 0,
-                    width: "100%",
-                  }}
-                >
+                <Navbar.Section mt="xs"></Navbar.Section>
+
+                <Navbar.Section grow mt="md">
+                  {views.map((view, index) => (
+                    <Link
+                      to={view.path}
+                      key={index}
+                      onClick={() => setOpened(false)}
+                      className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    >
+                      <Group>
+                        <Text>{view.name}</Text>
+                      </Group>
+                    </Link>
+                  ))}
+                </Navbar.Section>
+                <Navbar.Section>
                   <Divider size="lg" mt="xl" />
 
                   <Button
@@ -184,7 +181,7 @@ function App() {
                   >
                     Logout
                   </Button>
-                </div>
+                </Navbar.Section>
               </Navbar>
             )
           }
@@ -246,7 +243,6 @@ function App() {
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/landingpage" element={<LandingPage />} />
             <Route path="/passwordreset" element={<Forgot_password />} />
-            <Route path="/maintanance" element={<Maintenance />} />
 
             {/* Public routes */}
             {!loggedIn && (

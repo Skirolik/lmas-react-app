@@ -39,7 +39,13 @@ const Calendar_tab = () => {
     y: Number(row[13]),
   }));
 
-  return <Calender data={transformerData} />;
+  return (
+    <>
+      <div>
+        <Calender data={transformerData} />
+      </div>
+    </>
+  );
 };
 
 export default Calendar_tab;
