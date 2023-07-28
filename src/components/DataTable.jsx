@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { Table, Pagination, Text, useMantineTheme } from "@mantine/core";
 
-const Data_table = ({ data, transformeddata }) => {
+const DataTable = ({ data, transformeddata }) => {
   console.log("data_table", data);
   console.log("transorfmed", transformeddata);
   const theme = useMantineTheme();
@@ -49,8 +49,7 @@ const Data_table = ({ data, transformeddata }) => {
           <tr>
             <th>ID</th>
             <th>Name</th>
-
-            <th>Date and Time</th>
+            <th>Date & Time</th>
             <th>Alert</th>
 
             {/* Add more column headers as needed */}
@@ -92,4 +91,4 @@ const Data_table = ({ data, transformeddata }) => {
   );
 };
 
-export default Data_table;
+export default DataTable;

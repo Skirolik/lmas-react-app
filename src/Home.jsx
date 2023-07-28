@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import {
   Paper,
   Card,
@@ -10,19 +10,23 @@ import {
   Button,
 } from "@mantine/core";
 
-import Data_table from "./components/Data_table";
-import Progress_card from "./components/Progress_card";
+import DataTable from "./components/DataTable";
+import ProgressCard from "./components/ProgressCard";
 import Lmap from "./components/Lmap";
-import Progress_bar from "./components/Progress_bar";
-import Field_values from "./components/Field_values";
-import Battery_status from "./components/Battery_status";
-import Variable_count from "./components/Variable_count";
+import ProgressBar from "./components/ProgressBar";
+import FieldValues from "./components/FieldValues";
+import BatteryStatus from "./components/BatteryStatus";
+import VariableCount from "./components/VariableCount";
 
 function Home() {
   const theme = useMantineTheme();
   const [chartData, setChartData] = useState([]);
 
   const [data, setData] = useState([]);
+  const [email, setEmail] = useState("");
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const blockedStyle = {
     position: "relative",
     width: "100%",
@@ -32,27 +36,43 @@ function Home() {
   };
 
   useEffect(() => {
-    const socket = new WebSocket("ws://52.172.4.41:7000");
+    // Check if user is logged in (e.g., by checking session storage, authentication token, etc.)
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
 
-    socket.onopen = () => {
-      // console.log("WebSocket connection established.");
-    };
+    if (!isLoggedIn) {
+      window.location.href = "/login"; // Redirect to login page if not logged in
+    } else {
+      setLoggedIn(true);
+      const userEmail = sessionStorage.getItem("userEmail");
 
-    socket.onmessage = (event) => {
-      const newData = JSON.parse(event.data);
-      setData(newData);
-      // console.log("Received data:", newData);
-      const lastTenData = newData.slice(-1);
-      setChartData(lastTenData);
-    };
+      if (userEmail) {
+        setEmail(userEmail);
+        const socket = new WebSocket(`ws://127.0.0.1:7000`);
 
-    socket.onclose = () => {
-      // console.log("WebSocket connection closed.");
-    };
+        console.log("Email", userEmail);
 
-    return () => {
-      socket.close();
-    };
+        socket.onopen = () => {
+          console.log("WebSocket connection established.");
+          socket.send(userEmail); // Send the email to the WebSocket server
+        };
+
+        socket.onmessage = (event) => {
+          const newData = JSON.parse(event.data);
+          setData(newData);
+          // console.log("Received data:", newData);
+          const lastTenData = newData.slice(-1);
+          setChartData(lastTenData);
+        };
+
+        socket.onclose = () => {
+          console.log("WebSocket connection closed.");
+        };
+
+        return () => {
+          socket.close();
+        };
+      }
+    }
   }, []);
 
   const transformedData = chartData
@@ -112,7 +132,7 @@ function Home() {
       <Grid mb="xl">
         <Grid.Col md={4} lg={3}></Grid.Col>
         <Grid.Col md={2} lg={6}>
-          <Progress_bar data={transformedData} />
+          <ProgressBar data={transformedData} />
         </Grid.Col>
         <Grid.Col md={2} lg={2}></Grid.Col>
       </Grid>
@@ -120,17 +140,17 @@ function Home() {
       <Grid mt="xl" mb="xl">
         <Grid.Col md={4} lg={1}></Grid.Col>
         <Grid.Col md={4} lg={4}>
-          <Data_table data={data} />
+          <DataTable data={data} />
         </Grid.Col>
         <Grid.Col md={2} lg={1}></Grid.Col>
         <Grid.Col md={2} lg={4}>
-          <Field_values
+          <FieldValues
             data={diaDataElectroStatic}
             color="yellow"
             title="Electro-Static"
           />
-          <Field_values data={diaDataSpark} color="green" title="Spark" />
-          <Field_values
+          <FieldValues data={diaDataSpark} color="green" title="Spark" />
+          <FieldValues
             data={diaDataEnvironment}
             color="blue"
             title="Environment"
@@ -145,7 +165,7 @@ function Home() {
             <h1>Static Count </h1>
 
             <Center>
-              <Variable_count data={staticData} color={"#66a80f"} />
+              <VariableCount data={staticData} color={"#66a80f"} />
             </Center>
           </Card>
         </Grid.Col>
@@ -153,7 +173,7 @@ function Home() {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <h1>Spark Count</h1>
             <Center>
-              <Variable_count
+              <VariableCount
                 data={sparkData}
                 color={"#be4bdb"}
                 color2={"#f3d9fa"}
@@ -165,7 +185,7 @@ function Home() {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <h1>Weather</h1>
             <Center>
-              <Variable_count
+              <VariableCount
                 data={envData}
                 color={"#0ca678"}
                 color2={"#c3fae8"}
@@ -181,7 +201,7 @@ function Home() {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <h1>Total Predictions</h1>
             <Center>
-              <Battery_status
+              <BatteryStatus
                 data={transformerData}
                 color={"#fcc419"}
                 color2={"#fff3bf"}
@@ -193,7 +213,7 @@ function Home() {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <h1>Battery status</h1>
             <Center>
-              <Battery_status
+              <BatteryStatus
                 data={transformerData}
                 color={"#ff6b6b"}
                 color2={"#ffc9c9"}
@@ -206,7 +226,7 @@ function Home() {
             <h1>SMART Protection </h1>
             <div style={blockedStyle}>
               <Center>
-                <Battery_status data={transformerData} color={"#66a80f"} />
+                <BatteryStatus data={transformerData} color={"#66a80f"} />
               </Center>
             </div>
             <Center>

@@ -11,37 +11,56 @@ import {
   Image,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useInputState } from "@mantine/hooks";
-import { IconCheck, IconX } from "@tabler/icons-react";
+
 import { Link } from "react-router-dom";
-import RegistrationPage from "./components/Regestration";
+import axios from "axios";
 
 const Login = ({ onLogin }) => {
   const theme = useMantineTheme();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  // const navigate = useNavigate();
+
+  // Set the default base URL for Axios
+  axios.defaults.baseURL = "http://localhost:8080";
+
+  const handleLogin = async () => {
     // Here, you can perform the login logic with the entered username and password
-    // For demonstration purposes, we will use a simple check to simulate a successful login
-    if (username === "admin" && password === "password") {
-      // Call the onLogin function to indicate successful login
-      notifications.show({
-        title: "Login Successful",
-        message: "Welcome back!",
-        color: "teal",
+
+    try {
+      const response = await axios.post("/login", {
+        email,
+        password,
       });
-      onLogin();
-    } else {
-      // You can show an error message here or handle unsuccessful login
-      console.log("Invalid credentials");
-      notifications.show({
-        title: "Invalid Credentials",
-        message: "Please Check",
-        color: "Red",
-      });
+
+      // console.log(response.data.message);
+
+      if (response.data.message === "Login successful") {
+        const userEmail = response.data.email;
+        sessionStorage.setItem("isLoggedIn", "true");
+        sessionStorage.setItem("userEmail", userEmail); // Store the email in session storage
+        window.location.href = "/";
+        notifications.show({
+          title: "Login Success",
+          message: "Login Successful: Welcome back!",
+          color: "teal",
+        });
+        onLogin();
+      } else {
+        // You can show an error message here or handle unsuccessful login
+        console.log("Invalid credentials");
+        notifications.show({
+          title: "Invalid Credentials",
+          message: "Please check your username and password.",
+          color: "Red",
+        });
+      }
+    } catch (error) {
+      console.error("Login failed:");
     }
+    onLogin();
   };
   return (
     <div>
@@ -63,14 +82,14 @@ const Login = ({ onLogin }) => {
               </Text>
               <TextInput
                 label="Name"
-                placeholder="Enter Your name"
+                placeholder="Enter your email"
                 style={{ marginBottom: "1rem" }}
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
               <PasswordInput
                 label="Password"
-                placeholder="Enter Your Password"
+                placeholder="Enter your Password"
                 style={{ marginBottom: "1rem" }}
                 onChange={(event) => setPassword(event.target.value)}
                 required
@@ -80,12 +99,10 @@ const Login = ({ onLogin }) => {
               Login!
             </Button>
             <p>
-              {" "}
-              Dont have an account? <Link to="/registration">Register</Link>
+              Dont have an account? <Link to="/register">Register</Link>
             </p>
             <p>
-              {" "}
-              Forgot Password? <Link to="/passwordreset">Click Here!</Link>
+              Forgot password? <Link to="/forgot-password">Click Here!</Link>
             </p>
           </Card>
         </Grid.Col>

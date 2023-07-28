@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AppShell,
   Burger,
@@ -28,53 +28,68 @@ import { Logout } from "tabler-icons-react";
 import { Notifications, notifications } from "@mantine/notifications";
 
 import "./App.css";
-import Home from "./Home";
-import Login from "./Login";
-import RegistrationPage from "./components/Regestration";
-import Forgot_password from "./components/Forgot_password";
 
-import Calendar_tab from "./Calendar_tab";
-import smart_earthpit from "./smart_earthpit";
-import smart_protection from "./smart_protection";
-import LandingPage from "./LandingPage";
+import Home from "./Home";
+
+import CalendarTab from "./CalendarTab";
+import SmartEarthpit from "./SmartEarthpit";
+import SmartProtection from "./SmartProtection";
 import Maintenance from "./Maintenance";
+
+import Login from "./Login";
+import LogoutPage from "./Logout";
+import RegistrationPage from "./components/Regestration";
+import EmailConfirmation from "./components/EmailConfirmation";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPasswordPage from "./ResetPassword";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  // const history = useNavigate();
 
-  const handleLogin = () => {
-    // Perform login logic here...
-    setLoggedIn(true);
-  };
+  useEffect(() => {
+    // Check if user is logged in (e.g., by checking session storage, authentication token, etc.)
+    const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+
+    if (!isLoggedIn) {
+      // history("/login"); // Redirect to login page if not logged in
+    } else {
+      setLoggedIn(true);
+    }
+  }, []);
 
   const handleLogout = () => {
     // Perform logout logic here...
+
+    sessionStorage.removeItem("isLoggedIn");
+    setLoggedIn(false);
+    window.location.href = "/"; // Redirect to login page if not logged in
+
     notifications.show({
       title: "Thank you",
       message: "Please Check",
       color: "Red",
     });
-    setLoggedIn(false);
   };
 
   const views = [
     { path: "/", name: "Home", component: Home },
     {
-      path: "/calender_tab",
+      path: "/CalenderTab",
       name: "Calendar",
-      component: Calendar_tab,
+      component: CalendarTab,
       exact: true,
     },
     {
-      path: "/smart_earthpit",
+      path: "/SmartEarthpit",
       name: "Smart Earthing",
-      component: smart_earthpit,
+      component: SmartEarthpit,
       exact: true,
     },
     {
-      path: "/smart_protection",
+      path: "/SmartProtection",
       name: "Smart Protection",
-      component: smart_protection,
+      component: SmartProtection,
       exact: true,
     },
     {
@@ -215,7 +230,7 @@ function App() {
                       color: colorScheme === "dark" ? "white" : "Black",
                     }}
                   >
-                    Niju P.P Presents:
+                    LMAS Dashboard | Manav Energy Pvt. Ltd.
                   </Text>
                 </div>
 
@@ -242,17 +257,18 @@ function App() {
           })}
         >
           <Routes>
-            <Route path="/registration" element={<RegistrationPage />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/landingpage" element={<LandingPage />} />
-            <Route path="/passwordreset" element={<Forgot_password />} />
+            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<LogoutPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/reset-password/:resetToken"
+              element={<ResetPasswordPage />}
+            />
+            <Route path="/confirm/:token" element={<EmailConfirmation />} />
             <Route path="/maintanance" element={<Maintenance />} />
-
             {/* Public routes */}
-            {!loggedIn && (
-              <Route path="/" element={<Login onLogin={handleLogin} />} />
-            )}
-
+            {!loggedIn && <Route path="/" element={<Login />} />}
             {/* Private routes */}
             {loggedIn && (
               <>
@@ -266,9 +282,8 @@ function App() {
                 ))}
               </>
             )}
-
             {/* Redirect to login page if route not found */}
-            <Route path="*" element={<Navigate to="/landingpage" />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppShell>
       </MantineProvider>

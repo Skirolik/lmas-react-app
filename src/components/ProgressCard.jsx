@@ -9,9 +9,9 @@ import {
   Button,
 } from "@mantine/core";
 
-import Battery_status from "./Battery_status";
+import BatteryStatus from "./BatteryStatus";
 
-const Progress_card = ({ data }) => {
+const ProgressCard = ({ data }) => {
   const theme = useMantineTheme();
   //console.log("progress_card", data);
   const blockedStyle = {
@@ -30,7 +30,7 @@ const Progress_card = ({ data }) => {
             <h1>SMART Protection </h1>
             <div style={blockedStyle}>
               <Center>
-                <Battery_status data={data} color={"#66a80f"} />
+                <BatteryStatus data={data} color={"#66a80f"} />
               </Center>
             </div>
             <Center>
@@ -54,11 +54,7 @@ const Progress_card = ({ data }) => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <h1>Battery status</h1>
             <Center>
-              <Battery_status
-                data={data}
-                color={"#0ca678"}
-                color2={"#c3fae8"}
-              />
+              <BatteryStatus data={data} color={"#0ca678"} color2={"#c3fae8"} />
             </Center>
           </Card>
         </Grid.Col>
@@ -67,4 +63,4 @@ const Progress_card = ({ data }) => {
   );
 };
 
-export default Progress_card;
+export default ProgressCard;

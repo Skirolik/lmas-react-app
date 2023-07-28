@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Progress } from "@mantine/core";
 
-const Field_values = ({ data, color, title }) => {
+const FieldValues = ({ data, color, title }) => {
   console.log("nar", data);
   //   console.log("val", val);
   const initialYValue = data.length > 0 ? data[0].y : 0;
@@ -43,4 +43,4 @@ const Field_values = ({ data, color, title }) => {
   );
 };
 
-export default Field_values;
+export default FieldValues;

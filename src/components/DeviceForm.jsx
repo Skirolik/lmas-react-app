@@ -21,6 +21,9 @@ const DeviceForm = () => {
   const [nextCollection, setNextCollection] = useState(null);
   const [description, setDescription] = useState("");
 
+  // Set the default base URL for Axios
+  axios.defaults.baseURL = "http://localhost:9000";
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const formattedDateCollected =
@@ -42,7 +45,7 @@ const DeviceForm = () => {
 
     // Send the form data to the backend server
     axios
-      .post("http://localhost:5000/api/submit-form", formData)
+      .post("/submit-form", formData)
       .then((response) => {
         console.log(response.data.message); // Success message from the backend
         // Reset form fields after successful submission

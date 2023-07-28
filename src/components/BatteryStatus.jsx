@@ -5,7 +5,7 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useMantineTheme } from "@mantine/core";
 
-const Radial_bar = ({ data, color, color2 }) => {
+const RadialBar = ({ data, color, color2 }) => {
   const theme = useMantineTheme();
   console.log("sData:", data);
 
@@ -72,4 +72,4 @@ const Radial_bar = ({ data, color, color2 }) => {
   );
 };
 
-export default Radial_bar;
+export default RadialBar;

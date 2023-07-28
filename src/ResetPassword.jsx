@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Paper,
   TextInput,
@@ -53,40 +54,15 @@ function getStrength(password) {
 }
 
 const RegistrationPage = () => {
-  const [firstname, setFirstName] = useState("");
-  const [lastname, setLastName] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useInputState("");
   const [confirmPassword, setConfirmPassword] = useInputState("");
-  const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [key, setKey] = useState("");
+  const { resetToken } = useParams();
+
   const theme = useMantineTheme();
-  const [registrationError, setRegistrationError] = useState("");
 
   // Set the default base URL for Axios
   axios.defaults.baseURL = "http://localhost:8080";
-
-  const handleFirstNameChange = (event) => {
-    setFirstName(event.target.value);
-  };
-  const handleLastNameChange = (event) => {
-    setLastName(event.target.value);
-  };
-  const handleKeyChange = (event) => {
-    setKey(event.target.value);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-    setEmailError("");
-  };
-
-  const validateEmail = (email) => {
-    // Email validation regex pattern
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const strength = getStrength(password);
   const checks = requirements.map((requirement, index) => (
@@ -97,37 +73,27 @@ const RegistrationPage = () => {
     />
   ));
 
-  const handleRegistration = async () => {
-    if (!validateEmail(email)) {
-      setEmailError("Invalid email address");
-      return;
-    } else if (password !== confirmPassword) {
+  const handlePasswordChange = async () => {
+    if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     } else {
       try {
-        const response = await axios.post("/register", {
-          firstname,
-          lastname,
-          email,
+        const response = await axios.post(`/reset-password/${resetToken}`, {
           password,
         });
-
         // Check if the response contains an "error" property indicating a failed registration
         if (response.data.error) {
-          setRegistrationError(response.data.error); // Use the error message from the backend
+          setPasswordError(response.data.error); // Use the error message from the backend
         } else {
           console.log(response.data.message);
-          if (
-            response.data.message ===
-            "Registration successful. Check your email for confirmation."
-          ) {
+          if (response.data.message === "Password reset successful.") {
             window.location.href = "/login";
           }
         }
       } catch (error) {
-        console.error("Registration failed:", error.message);
-        setRegistrationError("Registration failed. Please try again.");
+        console.error("Password reset failed:", error.message);
+        setPasswordError("Password reset failed. Please try again.");
       }
     }
   };
@@ -148,38 +114,9 @@ const RegistrationPage = () => {
               }}
             >
               <Text fz="lg" fw={800} align="center" mb="md">
-                LMAS : Registration
+                LMAS : Password Reset
               </Text>
-              <TextInput
-                label="First Name"
-                placeholder="Enter your firstname"
-                value={firstname}
-                style={{ marginBottom: "1rem" }}
-                onChange={handleFirstNameChange}
-                required
-              />
-              <TextInput
-                label="Last Name"
-                placeholder="Enter your lastname"
-                value={lastname}
-                style={{ marginBottom: "1rem" }}
-                onChange={handleLastNameChange}
-                required
-              />
-              <TextInput
-                label="Email"
-                placeholder="Enter your email"
-                value={email}
-                style={{ marginBottom: "1rem" }}
-                onChange={handleEmailChange}
-                // error={emailError}
-                required
-              />
-              {emailError && (
-                <Text color="red" size="sm">
-                  {emailError}
-                </Text>
-              )}
+
               <PasswordInput
                 label="Password"
                 placeholder="Enter your password"
@@ -209,25 +146,14 @@ const RegistrationPage = () => {
                 error={passwordError}
                 required
               />
-              {/* <TextInput
-                label="Key"
-                placeholder="Enter the Key Provided by Manav"
-                style={{ marginBottom: "1rem" }}
-                onChange={handleKeyChange}
-                // error={emailError}
-                required
-              /> */}
               <Button
                 type="submit"
                 radius="xl"
                 ml="xl"
-                onClick={handleRegistration}
+                onClick={handlePasswordChange}
               >
-                Register
+                Reset Password
               </Button>
-              <p>
-                Have an account? <Link to="/login">Login</Link>
-              </p>
             </Paper>
           </Card>
         </Grid.Col>

@@ -13,6 +13,7 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString();
 };
+
 const DeviceEntries = () => {
   const [data, setData] = useState([]);
   const theme = useMantineTheme();
@@ -20,10 +21,13 @@ const DeviceEntries = () => {
   const rowsPerPage = 10;
   const [selectedEntry, setSelectedEntry] = useState(null);
 
+  // Set the default base URL for Axios
+  axios.defaults.baseURL = "http://localhost:9000";
+
   useEffect(() => {
     // Fetch data from the API endpoint
     axios
-      .get("http://localhost:5000/api/data")
+      .get("/data")
       .then((response) => {
         setData(response.data);
       })
@@ -32,6 +36,7 @@ const DeviceEntries = () => {
       });
   }, []);
   console.log("mysql", data);
+  // console.log("Data1", data[0][6]);
 
   //Table Code
   const handlePageChange = (newPage) => {
@@ -61,6 +66,7 @@ const DeviceEntries = () => {
   };
   const handleRowClick = (row) => {
     setSelectedEntry(row);
+    console.log("rowData", selectedEntry);
   };
 
   return (
@@ -97,7 +103,6 @@ const DeviceEntries = () => {
               <tbody>
                 {getPaginatedData().map((row) => (
                   <tr key={row.id} onClick={() => handleRowClick(row)}>
-                    {" "}
                     {/* Use the ID field (assuming it's row[0]) as the key */}
                     <td>{row.id}</td>
                     {/* <td>{row.longitude}</td>
@@ -115,7 +120,7 @@ const DeviceEntries = () => {
               <Modal
                 opened={!!selectedEntry}
                 onClose={() => setSelectedEntry(null)}
-                title={`Details of the Entry ID ${selectedEntry.id}`}
+                title={`Details of the Entry ID ${selectedEntry.row}`}
                 overflow="outside"
               >
                 {" "}

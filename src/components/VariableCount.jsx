@@ -5,7 +5,7 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useMantineTheme } from "@mantine/core";
 
-const Variable_count = ({ data, color, color2 }) => {
+const VariableCount = ({ data, color, color2 }) => {
   const theme = useMantineTheme();
   console.log("sData:", data);
 
@@ -71,4 +71,4 @@ const Variable_count = ({ data, color, color2 }) => {
     </div>
   );
 };
-export default Variable_count;
+export default VariableCount;

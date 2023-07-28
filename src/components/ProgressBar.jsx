@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Progress } from "@mantine/core";
 
-const Progress_bar = (data) => {
+const ProgressBar = (data) => {
   //   console.log("nar", data);
   //   console.log("val", val);
   const initialYValue = data.data.length > 0 ? data.data[0].y : 0;
@@ -52,4 +52,4 @@ const Progress_bar = (data) => {
   );
 };
 
-export default Progress_bar;
+export default ProgressBar;
