@@ -36,7 +36,7 @@ const Login = ({ onLogin }) => {
       onLogin();
     } else {
       // You can show an error message here or handle unsuccessful login
-      console.log("Invalid credentials");
+      // console.log("Invalid credentials");
       notifications.show({
         title: "Invalid Credentials",
         message: "Please Check",
@@ -53,6 +53,8 @@ const Login = ({ onLogin }) => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Paper
               padding="lg"
+              shadow="xl"
+              radius="lg"
               style={{
                 backgroundColor:
                   theme.colorScheme === "dark"
@@ -60,6 +62,12 @@ const Login = ({ onLogin }) => {
                     : theme.colors.gray[0],
               }}
             >
+              <Image
+                width="30%"
+                height="45%"
+                align="left"
+                src="../src/assets/Manav Logo 2021.png"
+              />
               <Text fz="lg" fw={800} align="center" mb="md">
                 LMAS : Login
               </Text>
@@ -78,7 +86,13 @@ const Login = ({ onLogin }) => {
                 required
               />
             </Paper>
-            <Button type="submit" radius="xl" ml="xl" onClick={handleLogin}>
+            <Button
+              type="submit"
+              radius="xl"
+              ml="xl"
+              onClick={handleLogin}
+              variant="gradient"
+            >
               Login!
             </Button>
             <p>

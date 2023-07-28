@@ -33,8 +33,9 @@ const DeviceEntries = () => {
   const [data, setData] = useState([]);
   const theme = useMantineTheme();
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const rowsPerPage = 8;
   const [selectedEntry, setSelectedEntry] = useState(null);
+  const [selectedMarker, setSelectedMarker] = useState(null);
 
   useEffect(() => {
     // Fetch data from the API endpoint
@@ -47,7 +48,7 @@ const DeviceEntries = () => {
         console.error("Error fetching data:", error);
       });
   }, []);
-  console.log("mysql", data);
+  // console.log("mysql", data);
 
   // Table Code
   const handlePageChange = (newPage) => {
@@ -62,7 +63,7 @@ const DeviceEntries = () => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     const sortedData = data.slice().sort((a, b) => b[0] - a[0]); // Sort data in descending order based on row[0]
-    console.log("sorted data", sortedData);
+    // console.log("sorted data", sortedData);
     return sortedData.slice(startIndex, endIndex);
   };
 
@@ -113,10 +114,18 @@ const DeviceEntries = () => {
     });
   }, [data]);
 
+  const popupStyle = {
+    // backgroundColor: "lightgray",
+    padding: "12px",
+    borderRadius: "4px",
+    boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
+    color: "black",
+  };
+
   return (
     <div>
       <h1>Saved Data</h1>
-      <Grid container alignItems="stretch">
+      <Grid container>
         <Grid.Col md={2} lg={1}></Grid.Col>
         <Grid.Col xs={12} sm={6} md={6} lg={3} style={{ flex: 1 }}>
           <div>
@@ -191,12 +200,43 @@ const DeviceEntries = () => {
                     offsetLeft={-12}
                     offsetTop={-24}
                     color="red"
+                    onClick={() => setSelectedMarker(entry)}
                   >
                     {/* You can customize the marker by using a custom SVG icon */}
                   </Marker>
                 ))}
                 <GeolocateControl position="top-left" />
                 <NavigationControl position="top-left" />
+                {selectedMarker && (
+                  <Popup
+                    latitude={selectedMarker.latitude}
+                    longitude={selectedMarker.longitude}
+                    style={popupStyle}
+                    // closeButton={true}
+                    onClose={() => setSelectedMarker(null)} // To close the popup when the close button is clicked
+                    closeOnClick={false} // To prevent the map click from closing the popup
+                  >
+                    <div>
+                      <button
+                        style={{
+                          position: "absolute",
+                          top: "5px",
+                          right: "5px",
+                          padding: "5px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setSelectedMarker(null)}
+                      >
+                        Close
+                      </button>
+                      <h3>Details of the Entry ID {selectedMarker.id}</h3>
+                      <p>Latitude: {selectedMarker.latitude}</p>
+                      <p>Longitude: {selectedMarker.longitude}</p>
+                      <p>Resistance: {selectedMarker.resistance}</p>
+                      {/* Add more details as needed */}
+                    </div>
+                  </Popup>
+                )}
               </Map>
             </LazyLoad>
           </Card>

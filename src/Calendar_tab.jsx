@@ -24,7 +24,7 @@ const Calendar_tab = () => {
       setChartData(lastTenData);
     };
 
-    console.log("chartdata:", chartData);
+    // console.log("chartdata:", chartData);
 
     socket.onclose = () => {
       // console.log("WebSocket connection closed.");

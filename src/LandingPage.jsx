@@ -9,7 +9,7 @@ const LandingPage = () => {
         Welcome to the Landing Page!
       </Text>
       <Link to="/">
-        <Button color="blue" fullWidth size="lg">
+        <Button color="blue" fullWidth size="lg" variant="gradient">
           Login
         </Button>
       </Link>

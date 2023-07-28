@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AppShell,
   Burger,
@@ -12,6 +12,9 @@ import {
   Button,
   Loader,
   Divider,
+  Image,
+  Aside,
+  Footer,
 } from "@mantine/core";
 import { CiDark, CiLight } from "react-icons/ci";
 import { createStyles, useMantineTheme } from "@mantine/core";
@@ -87,8 +90,8 @@ function App() {
 
   // mobile nav
   const [opened, setOpened] = useState(false);
-  const defaultColorScheme = "dark";
-  console.log(defaultColorScheme);
+  const defaultColorScheme = "light";
+  // console.log(defaultColorScheme);
   const [colorScheme, setColorScheme] = useState(defaultColorScheme);
 
   const toggleColorScheme = (value) => {
@@ -141,7 +144,8 @@ function App() {
         <Notifications />
         <AppShell
           padding="md"
-          navbarOffsetBreakpoint="sm fixed"
+          navbarOffsetBreakpoint="sm"
+          asideOffsetBreakpoint="sm"
           navbar={
             loggedIn && (
               <Navbar
@@ -167,7 +171,7 @@ function App() {
                   ))}
                 </Navbar.Section>
                 <Navbar.Section>
-                  <Divider size="lg" mt="xl" />
+                  <Divider size="lg" mb="xl" />
 
                   <Button
                     leftIcon={<Logout />}
@@ -177,7 +181,7 @@ function App() {
                     loaderPosition="right"
                     onClick={handleLogout}
                     className={`${classes.Button} `}
-                    mt="xl"
+                    mb="xl"
                   >
                     Logout
                   </Button>
@@ -185,8 +189,18 @@ function App() {
               </Navbar>
             )
           }
+          footer={loggedIn && <Footer height={5} p="sm"></Footer>}
+          aside={
+            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+              <Aside
+                p="sm"
+                hiddenBreakpoint="sm"
+                width={{ sm: 20, lg: 2 }}
+              ></Aside>
+            </MediaQuery>
+          }
           header={
-            <Header height={70} padding="md">
+            <Header height={80} padding="sm">
               <div
                 style={{
                   display: "flex",
@@ -203,6 +217,7 @@ function App() {
                     mr="xl"
                   />
                 </MediaQuery>
+
                 <div style={{ marginLeft: "auto" }}>
                   <Text
                     style={{
@@ -212,7 +227,7 @@ function App() {
                       color: colorScheme === "dark" ? "white" : "Black",
                     }}
                   >
-                    Niju P.P Presents:
+                    Yo YO Niju P.P Presents:
                   </Text>
                 </div>
 
@@ -221,7 +236,7 @@ function App() {
                     variant="outline"
                     onClick={() => toggleColorScheme()}
                     size={30}
-                    color={"dark" ? "yellow" : "blue"}
+                    color={colorScheme === "dark" ? "yellow" : "indigo"}
                   >
                     {colorScheme === "dark" ? <CiLight /> : <CiDark />}
                   </ActionIcon>
@@ -234,7 +249,7 @@ function App() {
               backgroundColor:
                 theme.colorScheme === "dark"
                   ? theme.colors.dark[8]
-                  : theme.colors.gray[0],
+                  : theme.colors.gray[1],
             },
           })}
         >

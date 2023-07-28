@@ -85,11 +85,11 @@ const RegistrationPage = () => {
     }
 
     // Handle registration logic here
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
-    console.log("Confirm Key:", key);
+    // console.log("Name:", name);
+    // console.log("Email:", email);
+    // console.log("Password:", password);
+    // console.log("Confirm Password:", confirmPassword);
+    // console.log("Confirm Key:", key);
   };
 
   const validateEmail = (email) => {
@@ -115,6 +115,8 @@ const RegistrationPage = () => {
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Paper
               padding="lg"
+              shadow="xl"
+              radius="lg"
               style={{
                 backgroundColor:
                   theme.colorScheme === "dark"
@@ -188,6 +190,7 @@ const RegistrationPage = () => {
                 radius="xl"
                 ml="xl"
                 onClick={handleRegistration}
+                variant="gradient"
               >
                 Register
               </Button>

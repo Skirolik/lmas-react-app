@@ -50,7 +50,7 @@ const Maintance_form = () => {
     axios
       .post("http://localhost:5000/api/submit-form", formData)
       .then((response) => {
-        console.log(response.data.message); // Success message from the backend
+        // console.log(response.data.message); // Success message from the backend
         // Reset form fields after successful submission
         setLatitude("");
         setLongitude("");
@@ -73,9 +73,9 @@ const Maintance_form = () => {
   };
 
   const handleAddClick = (e) => {
-    console.log("map clicked");
+    // console.log("map clicked");
     const { lng, lat } = e.lngLat;
-    console.log("lng", lng);
+    // console.log("lng", lng);
     setLatitude(lat);
     setLongitude(lng);
     setNewPlace({
@@ -144,7 +144,7 @@ const Maintance_form = () => {
               required
             />
 
-            <Button type="submit" mt="xl">
+            <Button type="submit" mt="xl" radius="xl" variant="gradient">
               Submit
             </Button>
           </form>

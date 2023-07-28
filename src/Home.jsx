@@ -145,7 +145,11 @@ function Home() {
             <h1>Static Count </h1>
 
             <Center>
-              <Variable_count data={staticData} color={"#66a80f"} />
+              <Variable_count
+                data={staticData}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
+              />
             </Center>
           </Card>
         </Grid.Col>
@@ -155,8 +159,8 @@ function Home() {
             <Center>
               <Variable_count
                 data={sparkData}
-                color={"#be4bdb"}
-                color2={"#f3d9fa"}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
               />
             </Center>
           </Card>
@@ -167,8 +171,8 @@ function Home() {
             <Center>
               <Variable_count
                 data={envData}
-                color={"#0ca678"}
-                color2={"#c3fae8"}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
               />
             </Center>
           </Card>
@@ -183,8 +187,8 @@ function Home() {
             <Center>
               <Battery_status
                 data={transformerData}
-                color={"#fcc419"}
-                color2={"#fff3bf"}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
               />
             </Center>
           </Card>
@@ -206,7 +210,11 @@ function Home() {
             <h1>SMART Protection </h1>
             <div style={blockedStyle}>
               <Center>
-                <Battery_status data={transformerData} color={"#66a80f"} />
+                <Battery_status
+                  data={transformerData}
+                  color={"#66a80f"}
+                  color2={"#e9fac8"}
+                />
               </Center>
             </div>
             <Center>

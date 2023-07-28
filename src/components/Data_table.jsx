@@ -3,8 +3,8 @@ import axios from "axios";
 import { Table, Pagination, Text, useMantineTheme } from "@mantine/core";
 
 const Data_table = ({ data, transformeddata }) => {
-  console.log("data_table", data);
-  console.log("transorfmed", transformeddata);
+  // console.log("data_table", data);
+  // console.log("transorfmed", transformeddata);
   const theme = useMantineTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 8;

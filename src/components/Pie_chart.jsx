@@ -36,7 +36,7 @@ const PieChart = ({ data }) => {
         counts["safe"]++;
       }
     });
-    console.log(counts);
+    // console.log(counts);
 
     return counts;
   };

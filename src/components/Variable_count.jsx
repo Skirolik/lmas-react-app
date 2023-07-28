@@ -7,7 +7,7 @@ import { useMantineTheme } from "@mantine/core";
 
 const Variable_count = ({ data, color, color2 }) => {
   const theme = useMantineTheme();
-  console.log("sData:", data);
+  // console.log("sData:", data);
 
   const [currentMonth, setCurrentMonth] = useState("");
   const [totalCount, setTotalCount] = useState(0);
@@ -18,7 +18,7 @@ const Variable_count = ({ data, color, color2 }) => {
       const currentDate = new Date();
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(currentDate.getDate() - 30);
-      console.log("3o days ago", thirtyDaysAgo);
+      // console.log("3o days ago", thirtyDaysAgo);
 
       let count = 0;
 
