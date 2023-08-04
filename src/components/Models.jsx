@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   Button,
@@ -10,7 +10,10 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { DatePickerInput } from "@mantine/dates";
+import { DateInput } from "@mantine/dates";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import axios from "axios";
 
 const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   const theme = useMantineTheme();
@@ -36,10 +39,13 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
         opacity: isDragging ? 0.5 : 1,
       }}
     >
-      <div>
+      <div key={task.id}>
         <Card shadow="xl" padding="lg" radius="xl" withBorder>
-          <strong>{task.title}</strong>
-          <p>{task.description}</p>
+          <strong>Title: {task.title}</strong>
+          <p>Description: {task.description}</p>
+          <p>Assigned to: {task.assigned}</p>
+          <p>Deadline: {task.date}</p>
+          <p>Status: {task.status}</p>
           {/* Show delete button only in the "Finished" column */}
           {task.status === "finished" && (
             <Button
@@ -57,7 +63,13 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   );
 };
 
-const DroppableColumn = ({ status, tasks, moveTask, deleteTask }) => {
+const DroppableColumn = ({
+  status,
+  tasks,
+  moveTask,
+  deleteTask,
+  newStatus,
+}) => {
   const [, drop] = useDrop({
     accept: "TASK",
     drop: (item) => moveTask(item.id, status),
@@ -76,7 +88,23 @@ const DroppableColumn = ({ status, tasks, moveTask, deleteTask }) => {
         marginBottom: 20,
       }}
     >
-      <Text size="lg" style={{ marginBottom: 10 }}>
+      <Text
+        size="lg"
+        style={{
+          marginBottom: 10,
+          backgroundColor:
+            status === "tasks"
+              ? "#228be6"
+              : status === "ongoing"
+              ? "#fd7e14"
+              : status === "finished"
+              ? "green"
+              : "#37b24d", // Fallback color if the status is not recognized
+          color: "white", // Text color for the header
+          padding: "8px",
+          fontWeight: "bold",
+        }}
+      >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Text>
       {tasksInColumn.map((task, index) => (
@@ -110,27 +138,67 @@ const Models = () => {
     },
   ]);
 
+  const fetchTasks = () => {
+    console.log("fetch");
+    axios
+      .get("http://localhost:3000/api/list")
+      .then((response) => {
+        setTasks(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching tasks: ", error);
+      });
+  };
+
+  // Fetch tasks from the backend when the component mounts
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newAssigned, setNewAssigned] = useState("");
+  const [newDate, setNewDate] = useState(null);
+  const [newStatus, setNewStatus] = useState("tasks");
 
   const addTask = () => {
     if (newTaskTitle.trim() !== "") {
-      setTasks([
-        ...tasks,
-        {
-          id: `task${Date.now()}`,
-          title: newTaskTitle,
-          description: newTaskDescription,
-          status: "tasks",
-        },
-      ]);
+      const newTask = {
+        title: newTaskTitle,
+        description: newTaskDescription,
+        assigned: newAssigned,
+        date: newDate,
+        status: newStatus,
+      };
+
+      axios
+        .post("http://localhost:3000/api/tasks", newTask) // Assuming your backend API endpoint is /api/tasks/add
+        .then((response) => {
+          console.log("Task added to the database!");
+          // Now update the local state with the new task
+          setTasks([...tasks, response.data]);
+        })
+        .catch((error) => {
+          console.error("Error adding task: ", error);
+        });
       setNewTaskTitle("");
       setNewTaskDescription("");
+      setNewAssigned("");
+      setNewDate(null);
     }
   };
   const deleteTask = (taskID) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskID);
-    setTasks(updatedTasks);
+    axios
+      .delete(`http://localhost:3000/api/tasks/${taskID}`)
+      .then((response) => {
+        console.log("Task deleted from the database!");
+        // Update the local state to remove the deleted task
+        const updatedTasks = tasks.filter((task) => task.id !== taskID);
+        setTasks(updatedTasks);
+      })
+      .catch((error) => {
+        console.error("Error deleting task: ", error);
+      });
   };
 
   const moveTask = (taskID, newStatus) => {
@@ -138,63 +206,98 @@ const Models = () => {
       task.id === taskID ? { ...task, status: newStatus } : task
     );
     setTasks(updatedTasks);
+    // Send a PUT or PATCH request to the backend to update the task status in the database
+    axios
+      .put(`http://localhost:3000/api/tasks/${taskID}`, { status: newStatus })
+      .then((response) => {
+        console.log("Task status updated in the database!");
+        // Update the local state to reflect the new status of the task
+        const updatedTasks = tasks.map((task) =>
+          task.id === taskID ? { ...task, status: newStatus } : task
+        );
+        setTasks(updatedTasks);
+        setNewStatus(newStatus);
+      })
+      .catch((error) => {
+        console.error("Error updating task status: ", error);
+      });
   };
 
   return (
     <div style={{ gap: 20, justifyContent: "center" }}>
+      <div style={{ marginTop: 20, marginBottom: 50 }}>
+        <Popover width={300} trapFocus position="bottom" withArrow shadow="md">
+          <Popover.Target>
+            <Button radius="xl" compact variant="gradient">
+              Enter Task
+            </Button>
+          </Popover.Target>
+          <Popover.Dropdown
+            sx={(theme) => ({
+              background:
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[7]
+                  : theme.white,
+            })}
+          >
+            <Input
+              value={newTaskTitle}
+              onChange={(event) => setNewTaskTitle(event.currentTarget.value)}
+              placeholder="Enter a new task title..."
+              style={{ marginBottom: 10 }}
+            />
+            <Input
+              value={newTaskDescription}
+              onChange={(event) =>
+                setNewTaskDescription(event.currentTarget.value)
+              }
+              placeholder="Enter a new task description..."
+              style={{ marginBottom: 10 }}
+            />
+            <Input
+              value={newAssigned}
+              onChange={(event) => setNewAssigned(event.currentTarget.value)}
+              placeholder="Task Assigned to"
+              style={{ marginBottom: 10 }}
+            />
+            <input
+              type="date"
+              value={newDate}
+              onChange={(event) => setNewDate(event.target.value)}
+              style={{
+                marginBottom: 10,
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                backgroundColor:
+                  theme.colorScheme === "dark" ? "#25262b" : "#fff",
+                color: theme.colorScheme === "dark" ? "#495057" : "#A6A7AB", // Set text color based on theme
+              }}
+            />
+            <Button onClick={addTask} radius="xl" variant="gradient">
+              Submit
+            </Button>
+          </Popover.Dropdown>
+        </Popover>
+      </div>
       <Grid>
-        <Grid.Col md={2} lg={2}>
-          {" "}
-          <div style={{ marginTop: 20 }}>
-            <Popover
-              width={300}
-              trapFocus
-              position="bottom"
-              withArrow
-              shadow="md"
-            >
-              <Popover.Target>
-                <Button radius="xl">Enter Task</Button>
-              </Popover.Target>
-              <Popover.Dropdown
-                sx={(theme) => ({
-                  background:
-                    theme.colorScheme === "dark"
-                      ? theme.colors.dark[7]
-                      : theme.white,
-                })}
-              >
-                <Input
-                  value={newTaskTitle}
-                  onChange={(event) =>
-                    setNewTaskTitle(event.currentTarget.value)
-                  }
-                  placeholder="Enter a new task title..."
-                  style={{ marginBottom: 10 }}
-                />
-                <Input
-                  value={newTaskDescription}
-                  onChange={(event) =>
-                    setNewTaskDescription(event.currentTarget.value)
-                  }
-                  placeholder="Enter a new task description..."
-                  style={{ marginBottom: 10 }}
-                />
-                <Button onClick={addTask} radius="xl" variant="gradient">
-                  Submit
-                </Button>
-              </Popover.Dropdown>
-            </Popover>
-          </div>
-        </Grid.Col>
-        <Grid.Col md={2} lg={6}>
+        <Grid.Col md={2} lg={4}>
           <DndProvider backend={HTML5Backend}>
             <DroppableColumn status="tasks" tasks={tasks} moveTask={moveTask} />
+          </DndProvider>
+        </Grid.Col>
+        <Grid.Col md={2} lg={4}>
+          <DndProvider backend={HTML5Backend}>
             <DroppableColumn
               status="ongoing"
               tasks={tasks}
               moveTask={moveTask}
             />
+          </DndProvider>
+        </Grid.Col>
+
+        <Grid.Col md={2} lg={4}>
+          <DndProvider backend={HTML5Backend}>
             <DroppableColumn
               status="finished"
               tasks={tasks}
@@ -202,9 +305,9 @@ const Models = () => {
               deleteTask={deleteTask}
             />
           </DndProvider>
+          <Grid.Col md={2} lg={1}></Grid.Col>
         </Grid.Col>
-        <Grid.Col md={2} lg={4}></Grid.Col>
-      </Grid>
+      </Grid>{" "}
     </div>
   );
 };

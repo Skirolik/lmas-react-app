@@ -34,12 +34,26 @@ import "./App.css";
 import Home from "./Home";
 import Login from "./Login";
 import RegistrationPage from "./components/Regestration";
-import Forgot_password from "./components/Forgot_password";
+import ForgotPassword from "./components/ForgotPassword";
+import LogoutPage from "./Logout";
+import ResetPasswordPage from "./ResetPassword";
+import EmailConfirmation from "./components/EmailConfirmation";
 
 import Calendar_tab from "./Calendar_tab";
 import smart_earthpit from "./smart_earthpit";
 import smart_protection from "./smart_protection";
-import LandingPage from "./LandingPage";
+import Settings from "./Settings";
+import Users from "./Users";
+import Contact from "./Contact";
+import {
+  IconHome2,
+  IconCalendar,
+  IconActivityHeartbeat,
+  IconPackage,
+  IconLayoutKanban,
+  IconAddressBook,
+} from "@tabler/icons-react";
+
 import Maintenance from "./Maintenance";
 
 function App() {
@@ -60,37 +74,62 @@ function App() {
     setLoggedIn(false);
   };
 
+  // const handleLogout = () => {
+  //   // Perform logout logic here...
+  //   notifications.show({
+  //     title: "Thank you",
+  //     message: "shahin is best!!!",
+  //     color: "indigo",
+  //   });
+
+  //   sessionStorage.removeItem("isLoggedIn");
+  //   setLoggedIn(false);
+
+  //   window.location.href = "/"; // Redirect to login page if not logged in
+  // };
+
   const views = [
-    { path: "/", name: "Home", component: Home },
+    { path: "/", name: "Home", component: Home, logo: <IconHome2 /> },
     {
       path: "/calender_tab",
       name: "Calendar",
       component: Calendar_tab,
       exact: true,
+      logo: <IconCalendar />,
     },
     {
       path: "/smart_earthpit",
       name: "Smart Earthing",
       component: smart_earthpit,
       exact: true,
+      logo: <IconPackage />,
     },
     {
       path: "/smart_protection",
-      name: "Smart Protection",
+      name: "Smart Protect",
       component: smart_protection,
       exact: true,
+      logo: <IconActivityHeartbeat style={{ fontSize: "12px" }} />,
     },
     {
       path: "/maintanance",
-      name: "Maintance DB",
+      name: "Maintance",
       component: Maintenance,
       exact: true,
+      logo: <IconLayoutKanban />,
+    },
+    {
+      path: "/contact",
+      name: "Contact",
+      component: Contact,
+      exact: true,
+      logo: <IconAddressBook />,
     },
   ];
 
   // mobile nav
   const [opened, setOpened] = useState(false);
-  const defaultColorScheme = "light";
+  const defaultColorScheme = "dark";
   // console.log(defaultColorScheme);
   const [colorScheme, setColorScheme] = useState(defaultColorScheme);
 
@@ -165,6 +204,7 @@ function App() {
                       className={`${classes.NavLink} ${classes.NavLinkActive}`}
                     >
                       <Group>
+                        <span>{view.logo}</span>
                         <Text>{view.name}</Text>
                       </Group>
                     </Link>
@@ -172,6 +212,7 @@ function App() {
                 </Navbar.Section>
                 <Navbar.Section>
                   <Divider size="lg" mb="xl" />
+                  <Users />
 
                   <Button
                     leftIcon={<Logout />}
@@ -254,10 +295,16 @@ function App() {
           })}
         >
           <Routes>
-            <Route path="/registration" element={<RegistrationPage />} />
+            <Route path="/register" element={<RegistrationPage />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/landingpage" element={<LandingPage />} />
-            <Route path="/passwordreset" element={<Forgot_password />} />
+            <Route path="/logout" element={<LogoutPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/reset-password/:resetToken"
+              element={<ResetPasswordPage />}
+            />
+            <Route path="/confirm/:token" element={<EmailConfirmation />} />
+            {/* <Route path="/maintanance" element={<Maintenance />} /> */}
 
             {/* Public routes */}
             {!loggedIn && (
@@ -267,6 +314,7 @@ function App() {
             {/* Private routes */}
             {loggedIn && (
               <>
+                <Route path="/settings" element={<Settings />} />
                 {views.map((view, index) => (
                   <Route
                     key={index}
@@ -279,7 +327,7 @@ function App() {
             )}
 
             {/* Redirect to login page if route not found */}
-            <Route path="*" element={<Navigate to="/landingpage" />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppShell>
       </MantineProvider>

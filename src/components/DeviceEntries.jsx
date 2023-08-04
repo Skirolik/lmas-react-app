@@ -8,10 +8,14 @@ import {
   Card,
   Grid,
   Modal,
+  Button,
 } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
+import { EditOff, Lock } from "tabler-icons-react";
 
 import LazyLoad from "react-lazy-load";
 import { notifications } from "@mantine/notifications";
+import { AlertCircle } from "tabler-icons-react";
 
 import {
   Map,
@@ -36,11 +40,14 @@ const DeviceEntries = () => {
   const rowsPerPage = 8;
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [editedDateCollected, setEditedDateCollected] = useState("");
+  const [editedNextCollection, setEditedNextCollection] = useState("");
+  const [editedRowId, setEditedRowId] = useState(null);
 
   useEffect(() => {
     // Fetch data from the API endpoint
     axios
-      .get("http://localhost:5000/api/data")
+      .get("http://0.0.0.0:3000/api/data")
       .then((response) => {
         setData(response.data);
       })
@@ -77,25 +84,21 @@ const DeviceEntries = () => {
     border: 0,
   };
   const handleRowClick = (row) => {
-    setSelectedEntry(row);
+    if (editedRowId !== row.id) {
+      setSelectedEntry(row);
+      // Check if next_collection date has passed the current date
+      const nextCollectionDate = new Date(row.next_collection);
+      const currentDate = new Date();
 
-    // Check if next_collection date has passed the current date
-    const nextCollectionDate = new Date(row.next_collection);
-    const currentDate = new Date();
-
-    if (nextCollectionDate < currentDate) {
-      // Show a notification
-      notifications.show({
-        title: "Date Passed",
-        message: `Next Collection date for ID ${row.id} (Pit: ${row.pitName}) has passed.`,
-        color: "red",
-        dismiss: null, // Set to null to make the notification stay until the user clicks on it
-      });
-
-      // Change the color of the selected table row to indicate the case
-    } else {
-      // If the next_collection date is valid (not passed), clear the modal message and reset row colors
-      setModalMessage(null);
+      if (nextCollectionDate < currentDate) {
+        // Show a notification
+        notifications.show({
+          title: "Date Passed",
+          message: `Next Collection date for ID ${row.id}  has passed.`,
+          color: "red",
+          icon: <AlertCircle size={24} color="black" />,
+        });
+      }
     }
   };
 
@@ -106,9 +109,10 @@ const DeviceEntries = () => {
       if (nextCollectionDate < currentDate) {
         notifications.show({
           title: "Date Passed",
-          message: `Next Collection date for ID ${entry.id} (Pit: ${entry.pitName}) has passed.`,
+          message: `Next Collection date for ID ${entry.id}  has passed.`,
           color: "red",
-          dismiss: null,
+
+          icon: <AlertCircle size={24} color="black" />,
         });
       }
     });
@@ -121,13 +125,67 @@ const DeviceEntries = () => {
     boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
     color: "black",
   };
+  const handleEditClick = (row) => {
+    // Set the edited dates to the current row's dates
+    setEditedDateCollected(row.date_collected);
+    setEditedNextCollection(row.next_collection);
+    // Set the edited row ID
+    setEditedRowId(row.id);
+  };
+  const handleSaveClick = () => {
+    const formattedDateCollected = new Date(editedDateCollected)
+      .toISOString()
+      .split("T")[0];
+    const formattedNextCollection = new Date(editedNextCollection)
+      .toISOString()
+      .split("T")[0];
+
+    // Send the updated date values to the server to update the entry in the database
+    axios
+      .post("http://localhost:3000/api/update-entry", {
+        id: editedRowId,
+        dateCollected: formattedDateCollected,
+        nextCollection: formattedNextCollection,
+      })
+      .then((response) => {
+        console.log(response.data.message); // Success message from the backend
+        // Find the row in the data array with the editedRowId and update the date values
+        const updatedData = data.map((row) => {
+          if (row.id === editedRowId) {
+            return {
+              ...row,
+              dateCollected: editedDateCollected,
+              nextCollection: editedNextCollection,
+            };
+          }
+          return row;
+        });
+
+        // Update the data state with the updatedData
+        setData(updatedData);
+
+        // Clear the edited row state variables
+        setEditedRowId(null);
+        setEditedDateCollected(null);
+        setEditedNextCollection(null);
+      })
+      .catch((error) => {
+        console.error("Error updating entry:", error);
+        // Handle error here, show error message to the user, etc.
+        notifications.show({
+          title: "Entry not updated",
+          message: "Error updating entry, please try again",
+          color: "red",
+        });
+      });
+  };
 
   return (
     <div>
       <h1>Saved Data</h1>
-      <Grid container>
+      <Grid>
         <Grid.Col md={2} lg={1}></Grid.Col>
-        <Grid.Col xs={12} sm={6} md={6} lg={3} style={{ flex: 1 }}>
+        <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 1 }}>
           <div>
             <Table
               striped
@@ -142,9 +200,10 @@ const DeviceEntries = () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Resistance</th>
-                  <th>Date Collected</th>
-                  <th>Next_collection</th>
+                  <th>Value</th>
+                  <th>Collected</th>
+                  <th>Next Date</th>
+                  <th>Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,8 +211,51 @@ const DeviceEntries = () => {
                   <tr key={row.id} onClick={() => handleRowClick(row)}>
                     <td>{row.id}</td>
                     <td>{row.resistance}</td>
-                    <td>{formatDate(row.date_collected)}</td>
-                    <td>{formatDate(row.next_collection)}</td>
+                    <td>
+                      {editedRowId === row.id ? (
+                        <DateInput
+                          value={new Date(editedDateCollected)}
+                          onChange={(date) =>
+                            setEditedDateCollected(
+                              date.toISOString().split("T")[0]
+                            )
+                          }
+                        />
+                      ) : (
+                        formatDate(row.date_collected)
+                      )}
+                    </td>
+                    <td>
+                      {editedRowId === row.id ? (
+                        <DateInput
+                          value={new Date(editedNextCollection)}
+                          onChange={(date) =>
+                            setEditedNextCollection(
+                              date.toISOString().split("T")[0]
+                            )
+                          }
+                        />
+                      ) : (
+                        formatDate(row.next_collection)
+                      )}
+                    </td>
+                    <td>
+                      {editedRowId === row.id ? (
+                        <Lock
+                          onClick={handleSaveClick}
+                          size={18}
+                          color="green"
+                          style={{ cursor: "pointer" }}
+                        />
+                      ) : (
+                        <EditOff
+                          onClick={() => handleEditClick(row)}
+                          size={18}
+                          color="gray"
+                          style={{ cursor: "pointer" }}
+                        />
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -179,7 +281,7 @@ const DeviceEntries = () => {
             {data.length === 0 && <Text>No data available.</Text>}
           </div>
         </Grid.Col>
-        <Grid.Col xs={12} sm={6} md={6} lg={6} style={{ flex: 2 }}>
+        <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 2 }}>
           <Card style={{ height: "100%", overflow: "hidden" }}>
             <LazyLoad>
               <Map

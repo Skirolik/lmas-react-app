@@ -21,6 +21,7 @@ import Variable_count from "./components/Variable_count";
 function Home() {
   const theme = useMantineTheme();
   const [chartData, setChartData] = useState([]);
+  const [email, setEmail] = useState("admin");
 
   const [data, setData] = useState([]);
   const blockedStyle = {
@@ -31,11 +32,57 @@ function Home() {
     borderRadius: "10px",
   };
 
+  // useEffect(() => {
+  //   console.log("email");
+  //   // Check if user is logged in (e.g., by checking session storage, authentication token, etc.)
+  //   const isLoggedIn = "true";
+
+  //   if (!isLoggedIn) {
+  //     window.location.href = "/login"; // Redirect to login page if not logged in
+  //   } else {
+  //     setLoggedIn(true);
+  //     const userEmail = sessionStorage.getItem("userEmail");
+
+  //     if (userEmail) {
+  //       setEmail(userEmail);
+  //       const socket = new WebSocket(`ws://127.0.0.1:7000`);
+
+  //       console.log("Email", userEmail);
+
+  //       socket.onopen = () => {
+  //         console.log("WebSocket connection established.");
+  //         socket.send(userEmail); // Send the email to the WebSocket server
+  //       };
+
+  //       socket.onmessage = (event) => {
+  //         const newData = JSON.parse(event.data);
+  //         setData(newData);
+  //         // console.log("Received data:", newData);
+  //         const lastTenData = newData.slice(-1);
+  //         setChartData(lastTenData);
+  //       };
+
+  //       socket.onclose = () => {
+  //         console.log("WebSocket connection closed.");
+  //       };
+
+  //       return () => {
+  //         socket.close();
+  //       };
+  //     }
+  //   }
+  // }, []);
+
   useEffect(() => {
-    const socket = new WebSocket("ws://52.172.4.41:7000");
+    //const socket = new WebSocket("ws://52.172.4.41:7000");
+
+    const socket = new WebSocket(`ws://localhost:5000`);
+
+    console.log("Email", email);
 
     socket.onopen = () => {
-      // console.log("WebSocket connection established.");
+      console.log("WebSocket connection established.");
+      socket.send(email);
     };
 
     socket.onmessage = (event) => {
