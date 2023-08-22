@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Progress } from "@mantine/core";
 
 const FieldValues = ({ data, color, title }) => {
-  console.log("nar", data);
+  // console.log("nar", data);
   //   console.log("val", val);
   const initialYValue = data.length > 0 ? data[0].y : 0;
-  console.log("dia_value", initialYValue);
+  // console.log("dia_value", initialYValue);
   const initialPercentage = initialYValue * 100;
 
   const [latestPercentage, setLatestPercentage] = useState(initialPercentage);

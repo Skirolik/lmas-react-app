@@ -10,8 +10,10 @@ import {
   Header,
   MediaQuery,
   Button,
-  Loader,
   Divider,
+  Aside,
+  Footer,
+  Image,
 } from "@mantine/core";
 import { CiDark, CiLight } from "react-icons/ci";
 import { createStyles, useMantineTheme } from "@mantine/core";
@@ -19,22 +21,29 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Link,
+  NavLink,
   Navigate,
 } from "react-router-dom";
+import {
+  IconHome2,
+  IconCalendar,
+  IconActivityHeartbeat,
+  IconPackage,
+  IconLayoutKanban,
+  IconAddressBook,
+} from "@tabler/icons-react";
 
 import { Logout } from "tabler-icons-react";
-
 import { Notifications, notifications } from "@mantine/notifications";
 
 import "./App.css";
 
 import Home from "./Home";
-
 import CalendarTab from "./CalendarTab";
 import SmartEarthpit from "./SmartEarthpit";
 import SmartProtection from "./SmartProtection";
 import Maintenance from "./Maintenance";
+import Contact from "./Contact";
 
 import Login from "./Login";
 import LogoutPage from "./Logout";
@@ -43,14 +52,16 @@ import EmailConfirmation from "./components/EmailConfirmation";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPasswordPage from "./ResetPassword";
 
+import Settings from "./Settings";
+import Users from "./Users";
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  // const history = useNavigate();
+  const [loading, setLoading] = useState(false);
+  // Check if user is logged in (e.g., by checking session storage, authentication token, etc.)
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
 
   useEffect(() => {
-    // Check if user is logged in (e.g., by checking session storage, authentication token, etc.)
-    const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
-
     if (!isLoggedIn) {
       // history("/login"); // Redirect to login page if not logged in
     } else {
@@ -58,57 +69,83 @@ function App() {
     }
   }, []);
 
+  const handleLogin = () => {
+    if (!isLoggedIn) {
+      // history("/login"); // Redirect to login page if not logged in
+    } else {
+      setLoggedIn(true);
+    }
+  };
+
   const handleLogout = () => {
+    setLoading(true);
+    const delay = 700; // Adjust the delay as needed
+    setTimeout(() => {
+      window.location.href = "/";
+      sessionStorage.removeItem("isLoggedIn");
+      setLoggedIn(false);
+    }, delay);
     // Perform logout logic here...
-
-    sessionStorage.removeItem("isLoggedIn");
-    setLoggedIn(false);
-    window.location.href = "/"; // Redirect to login page if not logged in
-
     notifications.show({
       title: "Thank you",
-      message: "shahin is best!!!",
+      message: "Logout successful",
       color: "indigo",
     });
   };
 
   const views = [
-    { path: "/", name: "Home", component: Home },
+    { path: "/", name: "Home", component: Home, logo: <IconHome2 /> },
     {
       path: "/CalenderTab",
       name: "Calendar",
       component: CalendarTab,
       exact: true,
+      logo: <IconCalendar />,
     },
     {
       path: "/SmartEarthpit",
       name: "Smart Earthing",
       component: SmartEarthpit,
       exact: true,
+      logo: <IconPackage />,
     },
     {
       path: "/SmartProtection",
       name: "Smart Protection",
       component: SmartProtection,
       exact: true,
+      logo: <IconActivityHeartbeat style={{ fontSize: "12px" }} />,
     },
     {
       path: "/maintanance",
       name: "Maintance DB",
       component: Maintenance,
       exact: true,
+      logo: <IconLayoutKanban />,
+    },
+    {
+      path: "/contact",
+      name: "Contact",
+      component: Contact,
+      exact: true,
+      logo: <IconAddressBook />,
     },
   ];
 
   // mobile nav
   const [opened, setOpened] = useState(false);
-  const defaultColorScheme = "dark";
-  console.log(defaultColorScheme);
+
+  // Get the user's preferred color scheme from local storage or default to "light"
+  const storedColorScheme = localStorage.getItem("colorScheme");
+  const defaultColorScheme = storedColorScheme || "light";
+  // console.log(defaultColorScheme);
   const [colorScheme, setColorScheme] = useState(defaultColorScheme);
 
   const toggleColorScheme = (value) => {
     const newValue = value || (colorScheme === "dark" ? "light" : "dark");
     setColorScheme(newValue);
+    // Save the selected color scheme to local storage
+    localStorage.setItem("colorScheme", newValue);
   };
 
   // custom styles
@@ -156,7 +193,8 @@ function App() {
         <Notifications />
         <AppShell
           padding="md"
-          navbarOffsetBreakpoint="sm fixed"
+          navbarOffsetBreakpoint="sm"
+          asideOffsetBreakpoint="sm"
           navbar={
             loggedIn && (
               <Navbar
@@ -169,20 +207,22 @@ function App() {
 
                 <Navbar.Section grow mt="md">
                   {views.map((view, index) => (
-                    <Link
+                    <NavLink
                       to={view.path}
                       key={index}
                       onClick={() => setOpened(false)}
                       className={`${classes.NavLink} ${classes.NavLinkActive}`}
                     >
                       <Group>
+                        <span>{view.logo}</span>
                         <Text>{view.name}</Text>
                       </Group>
-                    </Link>
+                    </NavLink>
                   ))}
                 </Navbar.Section>
                 <Navbar.Section>
-                  <Divider size="lg" mt="xl" />
+                  <Divider size="lg" mb="xl" />
+                  <Users />
 
                   <Button
                     leftIcon={<Logout />}
@@ -191,8 +231,9 @@ function App() {
                     radius="md"
                     loaderPosition="right"
                     onClick={handleLogout}
+                    loading={loading}
                     className={`${classes.Button} `}
-                    mt="xl"
+                    mb="xl"
                   >
                     Logout
                   </Button>
@@ -200,8 +241,18 @@ function App() {
               </Navbar>
             )
           }
+          footer={loggedIn && <Footer height={5} p="sm"></Footer>}
+          aside={
+            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+              <Aside
+                p="sm"
+                hiddenBreakpoint="sm"
+                width={{ sm: 20, lg: 2 }}
+              ></Aside>
+            </MediaQuery>
+          }
           header={
-            <Header height={70} padding="md">
+            <Header height={80} padding="sm">
               <div
                 style={{
                   display: "flex",
@@ -218,7 +269,15 @@ function App() {
                     mr="xl"
                   />
                 </MediaQuery>
+
                 <div style={{ marginLeft: "auto" }}>
+                  <Image
+                    maw={60}
+                    mx="auto"
+                    radius="md"
+                    src="src/assets/niju.png"
+                    alt="Random image"
+                  />
                   <Text
                     style={{
                       fontSize: "xl",
@@ -227,7 +286,7 @@ function App() {
                       color: colorScheme === "dark" ? "white" : "Black",
                     }}
                   >
-                    LMAS Dashboard | Manav Energy Pvt. Ltd.
+                    Yo YO Niju P.P Presents:
                   </Text>
                 </div>
 
@@ -236,7 +295,7 @@ function App() {
                     variant="outline"
                     onClick={() => toggleColorScheme()}
                     size={30}
-                    color={"dark" ? "yellow" : "blue"}
+                    color={colorScheme === "dark" ? "yellow" : "indigo"}
                   >
                     {colorScheme === "dark" ? <CiLight /> : <CiDark />}
                   </ActionIcon>
@@ -249,13 +308,13 @@ function App() {
               backgroundColor:
                 theme.colorScheme === "dark"
                   ? theme.colors.dark[8]
-                  : theme.colors.gray[0],
+                  : theme.colors.gray[1],
             },
           })}
         >
           <Routes>
             <Route path="/register" element={<RegistrationPage />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
@@ -263,13 +322,17 @@ function App() {
               element={<ResetPasswordPage />}
             />
             <Route path="/confirm/:token" element={<EmailConfirmation />} />
-            <Route path="/maintanance" element={<Maintenance />} />
+            {/* <Route path="/maintanance" element={<Maintenance />} /> */}
 
             {/* Public routes */}
-            {!loggedIn && <Route path="/" element={<Login />} />}
+            {!loggedIn && (
+              <Route path="/" element={<Login onLogin={handleLogin} />} />
+            )}
+
             {/* Private routes */}
             {loggedIn && (
               <>
+                <Route path="/settings" element={<Settings />} />
                 {views.map((view, index) => (
                   <Route
                     key={index}
@@ -280,6 +343,7 @@ function App() {
                 ))}
               </>
             )}
+
             {/* Redirect to login page if route not found */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

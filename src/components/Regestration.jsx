@@ -13,6 +13,7 @@ import {
   Group,
   Center,
 } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import { useInputState } from "@mantine/hooks";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
@@ -55,6 +56,7 @@ function getStrength(password) {
 const RegistrationPage = () => {
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
+  const [company, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useInputState("");
   const [confirmPassword, setConfirmPassword] = useInputState("");
@@ -63,6 +65,10 @@ const RegistrationPage = () => {
   const [key, setKey] = useState("");
   const theme = useMantineTheme();
   const [registrationError, setRegistrationError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   // Set the default base URL for Axios
   axios.defaults.baseURL = "http://localhost:8080";
@@ -73,6 +79,16 @@ const RegistrationPage = () => {
   const handleLastNameChange = (event) => {
     setLastName(event.target.value);
   };
+  const handleCompanyChange = (event) => {
+    setCompanyName(event.target.value);
+  };
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
   const handleKeyChange = (event) => {
     setKey(event.target.value);
   };
@@ -98,6 +114,7 @@ const RegistrationPage = () => {
   ));
 
   const handleRegistration = async () => {
+    setLoading(true);
     if (!validateEmail(email)) {
       setEmailError("Invalid email address");
       return;
@@ -111,17 +128,34 @@ const RegistrationPage = () => {
           lastname,
           email,
           password,
+          company,
+          startDate,
+          endDate,
         });
 
         // Check if the response contains an "error" property indicating a failed registration
         if (response.data.error) {
           setRegistrationError(response.data.error); // Use the error message from the backend
+          notifications.show({
+            title: "Registration Failed",
+            message:
+              "Registration failed, please contact the support team. Thank you!",
+            color: "red",
+            icon: <AlertCircle size={24} color="white" />,
+          });
         } else {
           console.log(response.data.message);
           if (
             response.data.message ===
             "Registration successful. Check your email for confirmation."
           ) {
+            notifications.show({
+              title: "Registration successful",
+              message:
+                "Registration successful. Check your email for confirmation.",
+              color: "teal",
+              icon: <CircleCheck size={24} color="white" />,
+            });
             window.location.href = "/login";
           }
         }
@@ -166,6 +200,31 @@ const RegistrationPage = () => {
                 onChange={handleLastNameChange}
                 required
               />
+              <TextInput
+                label="Company Name"
+                placeholder="Enter your company name"
+                value={company}
+                style={{ marginBottom: "1rem" }}
+                onChange={handleCompanyChange}
+                required
+              />
+              <DateInput
+                label="Subscription Start Date"
+                placeholder="Enter start date"
+                value={startDate}
+                style={{ marginBottom: "1rem" }}
+                onChange={setStartDate}
+                required
+              />
+              <DateInput
+                label="Subscription End Date"
+                placeholder="Enter end date"
+                value={endDate}
+                style={{ marginBottom: "1rem" }}
+                onChange={setEndDate}
+                required
+              />
+
               <TextInput
                 label="Email"
                 placeholder="Enter your email"
@@ -222,6 +281,7 @@ const RegistrationPage = () => {
                 radius="xl"
                 ml="xl"
                 onClick={handleRegistration}
+                loading={loading}
               >
                 Register
               </Button>

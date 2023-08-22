@@ -1,11 +1,20 @@
-import React from "react";
-import { Paper, Text, Button, useMantineTheme } from "@mantine/core";
+import React, { useState } from "react";
+import {
+  Paper,
+  Text,
+  Button,
+  useMantineTheme,
+  Grid,
+  Popover,
+} from "@mantine/core";
 import { RiCalendarEventFill } from "react-icons/ri";
 import Globe from "./components/Globe";
 import { Canvas } from "@react-three/fiber";
+import PopupCard from "./components/PopupCard";
 
-const ComingSoonPage = () => {
+const ComingSoonPage = ({ title, paragraph, bulletPoints, subject }) => {
   const theme = useMantineTheme();
+  const [showPopover, setShowPopover] = useState(false);
 
   const rootStyle = {
     display: "flex",
@@ -58,34 +67,63 @@ const ComingSoonPage = () => {
   const handleButtonLeave = (event) => {
     event.target.style.transform = "scale(1)";
   };
+  const togglePopover = () => {
+    setShowPopover(!showPopover);
+  };
 
   return (
     <>
-      <Paper shadow="lg" style={paperStyle}>
-        <RiCalendarEventFill style={iconStyle} />
-        <Canvas camera={{ position: [3, 1, 5], fov: 90 }}>
-          <Globe />
-        </Canvas>
+      <Grid>
+        <Grid.Col md={2} lg={3}></Grid.Col>
+        <Grid.Col md={2} lg={6}>
+          <Paper shadow="lg" style={paperStyle}>
+            <RiCalendarEventFill style={iconStyle} />
+            <Canvas camera={{ position: [3, 1, 5], fov: 90 }}>
+              <Globe />
+            </Canvas>
 
-        <Text
-          size="xl"
-          align="center"
-          style={{
-            marginBottom: "20px",
-            color: theme.colorScheme === "dark" ? "#ffffff" : "#000000",
-          }}
-        >
-          We are working hard to bring you something very interesting and
-          helpful!
-        </Text>
-        <Button
-          onMouseEnter={handleButtonHover}
-          onMouseLeave={handleButtonLeave}
-          style={buttonStyle}
-        >
-          More Enquiry
-        </Button>
-      </Paper>
+            <Text
+              size="xl"
+              align="center"
+              style={{
+                marginBottom: "20px",
+                color: theme.colorScheme === "dark" ? "#ffffff" : "#000000",
+              }}
+            >
+              We are working hard to bring you something very interesting and
+              helpful!
+            </Text>
+            <Button
+              onMouseEnter={handleButtonHover}
+              onMouseLeave={handleButtonLeave}
+              style={buttonStyle}
+              onClick={togglePopover}
+            >
+              More Enquiry
+            </Button>
+            {showPopover && (
+              <Popover
+                opened={showPopover}
+                onClose={() => setShowPopover(false)}
+                withArrow
+                position="top"
+                transition="slide-up"
+                targetOffset={10}
+                placement="center"
+                spacing={20}
+              >
+                <PopupCard
+                  title={title}
+                  paragraph={paragraph}
+                  bulletPoints={bulletPoints}
+                  subject={subject}
+                />
+              </Popover>
+            )}
+          </Paper>
+        </Grid.Col>
+        <Grid.Col md={2} lg={3}></Grid.Col>
+      </Grid>
     </>
   );
 };

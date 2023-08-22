@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Tabs } from "@mantine/core";
 import DeviceForm from "./components/DeviceForm";
 import DeviceEntries from "./components/DeviceEntries";
+import TimelineData from "./components/TimelineData";
 
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import {
@@ -33,9 +34,9 @@ const Maintenance = () => {
         <DeviceEntries />
       </Tabs.Panel>
 
-      {/* <Tabs.Panel value="settings" pt="xs">
-          Settings tab content
-        </Tabs.Panel> */}
+      <Tabs.Panel value="settings" pt="xs">
+        <TimelineData />
+      </Tabs.Panel>
     </Tabs>
   );
 };

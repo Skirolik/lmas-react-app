@@ -17,10 +17,12 @@ const ForgotPassword = () => {
   const theme = useMantineTheme();
   const [emailError, setEmailError] = useState("");
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://localhost:5000";
 
   const handlePasswordReset = async () => {
+    setLoading(true);
     if (!validateEmail(email)) {
       setEmailError("Invalid email address");
       return;

@@ -20,6 +20,7 @@ const Login = ({ onLogin }) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // const navigate = useNavigate();
 
@@ -28,6 +29,7 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async () => {
     // Here, you can perform the login logic with the entered username and password
+    setLoading(true);
 
     try {
       const response = await axios.post("/login", {
@@ -38,17 +40,37 @@ const Login = ({ onLogin }) => {
       // console.log(response.data.message);
 
       if (response.data.message === "Login successful") {
-        const userEmail = response.data.email;
+        const {
+          userEmail,
+          userFirstname,
+          userLastname,
+          userCompany,
+          userStartDate,
+          userEndDate,
+        } = response.data.user;
+
         sessionStorage.setItem("isLoggedIn", "true");
         sessionStorage.setItem("userEmail", userEmail); // Store the email in session storage
-        window.location.href = "/";
+        sessionStorage.setItem("userFirstname", userFirstname);
+        sessionStorage.setItem("userLastname", userLastname);
+        sessionStorage.setItem("userCompany", userCompany);
+        sessionStorage.setItem("userStartDate", userStartDate);
+        sessionStorage.setItem("userEndDate", userEndDate);
+
+        console.log(userEmail, userFirstname);
+
         notifications.show({
           title: "Login Success",
-          message: "Login Successful: Welcome back!",
+          message: "Login Successful: Welcome back! ",
           color: "teal",
         });
+        const delay = 700; // Adjust the delay as needed
+        setTimeout(() => {
+          window.location.href = "/";
+        }, delay);
         onLogin();
       } else {
+        setLoading(false);
         // You can show an error message here or handle unsuccessful login
         console.log("Invalid credentials");
         notifications.show({
@@ -58,6 +80,12 @@ const Login = ({ onLogin }) => {
         });
       }
     } catch (error) {
+      setLoading(false);
+      notifications.show({
+        title: "Request Failed",
+        message: "Sorry server not responding, please try again",
+        color: "Red",
+      });
       console.error("Login failed:");
     }
     onLogin();
@@ -95,7 +123,13 @@ const Login = ({ onLogin }) => {
                 required
               />
             </Paper>
-            <Button type="submit" radius="xl" ml="xl" onClick={handleLogin}>
+            <Button
+              type="submit"
+              radius="xl"
+              ml="xl"
+              onClick={handleLogin}
+              loading={loading}
+            >
               Login!
             </Button>
             <p>

@@ -16,7 +16,8 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
+import { CircleCheck, AlertCircle } from "tabler-icons-react";
 import axios from "axios";
 
 function PasswordRequirement({ meets, label }) {
@@ -53,11 +54,12 @@ function getStrength(password) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-const ResetPasswordPage = () => {
+const ChangePassword = () => {
   const [password, setPassword] = useInputState("");
   const [confirmPassword, setConfirmPassword] = useInputState("");
   const [passwordError, setPasswordError] = useState("");
-  const { resetToken } = useParams();
+
+  const userEmail = sessionStorage.getItem("userEmail");
 
   const theme = useMantineTheme();
 
@@ -74,13 +76,15 @@ const ResetPasswordPage = () => {
   ));
 
   const handlePasswordChange = async () => {
+    setPasswordError(null);
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     } else {
       try {
-        const response = await axios.post(`/reset-password/${resetToken}`, {
+        const response = await axios.post(`/change-password`, {
           password,
+          userEmail,
         });
         // Check if the response contains an "error" property indicating a failed registration
         if (response.data.error) {
@@ -88,12 +92,24 @@ const ResetPasswordPage = () => {
         } else {
           console.log(response.data.message);
           if (response.data.message === "Password reset successful.") {
-            window.location.href = "/login";
+            notifications.show({
+              title: "Password Change Successful",
+              message: "Password chnaged successfully.",
+              color: "teal",
+              icon: <CircleCheck size={24} color="white" />,
+            });
           }
         }
       } catch (error) {
         console.error("Password reset failed:", error.message);
         setPasswordError("Password reset failed. Please try again.");
+        notifications.show({
+          title: "Password Change Failed",
+          message:
+            "Request failed, please try again or contact the support team. Thank you!",
+          color: "red",
+          icon: <AlertCircle size={24} color="white" />,
+        });
       }
     }
   };
@@ -101,8 +117,8 @@ const ResetPasswordPage = () => {
   return (
     <div>
       <Grid p="20px">
-        <Grid.Col md={6} lg={2}></Grid.Col>
-        <Grid.Col md={6} lg={4}>
+        <Grid.Col md={6} lg={3}></Grid.Col>
+        <Grid.Col md={6} lg={6}>
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Paper
               padding="lg"
@@ -152,24 +168,15 @@ const ResetPasswordPage = () => {
                 ml="xl"
                 onClick={handlePasswordChange}
               >
-                Reset Password
+                Change Password
               </Button>
             </Paper>
           </Card>
         </Grid.Col>
-        <Grid.Col md={6} lg={4}>
-          <Image
-            width="80%"
-            height="100%"
-            src="../src/assets/ManavLogo2021.png"
-            align="center"
-            p="xl"
-          />
-        </Grid.Col>
-        <Grid.Col md={6} lg={2}></Grid.Col>
+        <Grid.Col md={6} lg={3}></Grid.Col>
       </Grid>
     </div>
   );
 };
 
-export default ResetPasswordPage;
+export default ChangePassword;

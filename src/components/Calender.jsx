@@ -15,7 +15,7 @@ const Calender = ({ data }) => {
       if (row.y >= 40) {
         const dateTime = new Date(row.x); // Assuming `row.x` contains the date and time information
         // console.log("datetime", dateTime);
-        console.log(row.x);
+        // console.log(row.x);
 
         // Extract the date (year, month, day) from the DateTime object
         const date = dateTime.toISOString().substring(0, 10);
