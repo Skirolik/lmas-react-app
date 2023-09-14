@@ -9,7 +9,7 @@ const Settings = () => {
   const theme = useMantineTheme();
   const cardColor = theme.colorScheme === "dark" ? "#25262b" : "#dbe4ff";
 
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const userEmail = sessionStorage.getItem("userEmail");
   const userFirstname = sessionStorage.getItem("userFirstname");

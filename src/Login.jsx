@@ -25,7 +25,7 @@ const Login = ({ onLogin }) => {
   // const navigate = useNavigate();
 
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070/";
 
   const handleLogin = async () => {
     // Here, you can perform the login logic with the entered username and password

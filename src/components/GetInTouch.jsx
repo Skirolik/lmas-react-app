@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Textarea,
+  Select,
   Accordion,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
@@ -15,6 +16,8 @@ import { CircleCheck, AlertCircle } from "tabler-icons-react";
 import axios from "axios";
 
 const GetInTouch = () => {
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
+
   const theme = useMantineTheme();
 
   const userEmail = sessionStorage.getItem("userEmail");
@@ -23,12 +26,19 @@ const GetInTouch = () => {
   const userCompany = sessionStorage.getItem("userCompany");
 
   const [message, setMessage] = useState("");
+  const [product, setProduct] = useState("select");
   const [messageError, setMessageError] = useState("");
+  const [productError, setProductError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleMessageChange = (event) => {
     setMessage(event.target.value);
     setMessageError("");
+  };
+  const handleProductChange = (selectedValue) => {
+    setProduct(selectedValue);
+    console.log(selectedValue);
+    setProductError("");
   };
   // Style for the contact details side with gradient background
   const contactDetailsStyle = {
@@ -41,54 +51,62 @@ const GetInTouch = () => {
   };
 
   const handleSubmit = async () => {
-    if (message != "") {
-      setLoading(true);
-      // Send client info to the backend
-      axios
-        .post("/contact-us", {
-          email: userEmail,
-          firstname: userFirstname,
-          lastname: userLastname,
-          company: userCompany,
-          message,
-        })
-        .then((response) => {
-          setLoading(false);
-          if (response.status === 200) {
-            setMessage("");
-            notifications.show({
-              title: "Enquiry Sent",
-              message:
-                "One of our representatives will be in touch with you shortly. Thank you!",
-              color: "teal",
-              icon: <CircleCheck size={24} color="white" />,
-            });
+    if (message !== "") {
+      if (product === "select") {
+        setProductError("Please select a product");
+        return; // Exit the function early if product is not selected
+      } else {
+        setLoading(true);
+        // Send client info to the backend
+        axios
+          .post("/contact-us", {
+            email: userEmail,
+            firstname: userFirstname,
+            lastname: userLastname,
+            company: userCompany,
+            product,
+            message,
+          })
+          .then((response) => {
+            setLoading(false);
+            if (response.status === 200) {
+              setMessage("");
+              setProduct("select");
+              setMessageError("");
+              notifications.show({
+                title: "Enquiry Sent",
+                message:
+                  "One of our representatives will be in touch with you shortly. Thank you!",
+                color: "teal",
+                icon: <CircleCheck size={24} color="white" />,
+              });
 
-            console.log("Client details sent successfully!");
-            // Handle any success notification if needed
-          } else {
+              console.log("Client details sent successfully!");
+              // Handle any success notification if needed
+            } else {
+              notifications.show({
+                title: "Enquiry Failed",
+                message: "Please contact the support team. Thank you!",
+                color: "red",
+                icon: <AlertCircle size={24} color="white" />,
+              });
+
+              console.log("Failed to send client details.");
+              // Handle any error notification if needed
+            }
+          })
+          .catch((error) => {
+            setLoading(false);
+            console.error("Error sending client details:", error);
             notifications.show({
               title: "Enquiry Failed",
               message: "Please contact the support team. Thank you!",
               color: "red",
               icon: <AlertCircle size={24} color="white" />,
             });
-
-            console.log("Failed to send client details.");
             // Handle any error notification if needed
-          }
-        })
-        .catch((error) => {
-          setLoading(false);
-          console.error("Error sending client details:", error);
-          notifications.show({
-            title: "Enquiry Failed",
-            message: "Please contact the support team. Thank you!",
-            color: "red",
-            icon: <AlertCircle size={24} color="white" />,
           });
-          // Handle any error notification if needed
-        });
+      }
     } else {
       setMessageError("Please enter message");
       return;
@@ -143,6 +161,54 @@ const GetInTouch = () => {
               disabled
               required
             />
+            <Select
+              dropdownPosition="top"
+              label="Product"
+              placeholder="Select"
+              searchable
+              value={product}
+              error={productError}
+              onChange={(selectedValue) => {
+                // Update the state with the selected value
+                handleProductChange(selectedValue);
+              }}
+              defaultValue={{ value: "select", label: "Select One" }}
+              nothingFound="No options"
+              dropdownComponent="div"
+              data={[
+                { value: "select", label: "Select One" },
+                { value: "lmas", label: "LMAS" },
+                { value: "smart_earthing", label: "Smart Earthing" },
+                { value: "rferm", label: "RFERM" },
+                { value: "maintanance", label: "Maintenance Assistance" },
+                { value: "order", label: "Place Order" },
+                { value: "other", label: "Other" },
+              ]}
+              required
+              styles={(theme) => ({
+                item: {
+                  // applies styles to selected item
+
+                  "&[data-selected]": {
+                    "&, &:hover": {
+                      backgroundColor:
+                        theme.colorScheme === "dark"
+                          ? theme.colors.violet[4]
+                          : theme.colors.blue[2],
+
+                      color:
+                        theme.colorScheme === "dark"
+                          ? theme.white
+                          : theme.white,
+                    },
+                  },
+
+                  // applies styles to hovered item (with mouse or keyboard)
+
+                  "&[data-hovered]": {},
+                },
+              })}
+            />
             <Textarea
               label="Message"
               placeholder="Enter your message"
@@ -156,6 +222,7 @@ const GetInTouch = () => {
               type="submit"
               radius="xl"
               ml="xl"
+              mb="md"
               onClick={handleSubmit}
               loading={loading}
             >

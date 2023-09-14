@@ -141,7 +141,7 @@ const Models = () => {
   const fetchTasks = () => {
     console.log("fetch");
     axios
-      .get("http://localhost:3000/api/list")
+      .get("http://49.204.77.190:3000/api/list")
       .then((response) => {
         setTasks(response.data);
       })
@@ -172,7 +172,7 @@ const Models = () => {
       };
 
       axios
-        .post("http://localhost:3000/api/tasks", newTask) // Assuming your backend API endpoint is /api/tasks/add
+        .post("http://49.204.77.190:3000/api/tasks", newTask) // Assuming your backend API endpoint is /api/tasks/add
         .then((response) => {
           console.log("Task added to the database!");
           // Now update the local state with the new task
@@ -189,7 +189,7 @@ const Models = () => {
   };
   const deleteTask = (taskID) => {
     axios
-      .delete(`http://localhost:3000/api/tasks/${taskID}`)
+      .delete(`http://49.204.77.190:3000/api/tasks/${taskID}`)
       .then((response) => {
         console.log("Task deleted from the database!");
         // Update the local state to remove the deleted task
@@ -208,7 +208,9 @@ const Models = () => {
     setTasks(updatedTasks);
     // Send a PUT or PATCH request to the backend to update the task status in the database
     axios
-      .put(`http://localhost:3000/api/tasks/${taskID}`, { status: newStatus })
+      .put(`http://49.204.77.190:3000/api/tasks/${taskID}`, {
+        status: newStatus,
+      })
       .then((response) => {
         console.log("Task status updated in the database!");
         // Update the local state to reflect the new status of the task

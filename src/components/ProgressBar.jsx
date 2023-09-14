@@ -18,20 +18,38 @@ const ProgressBar = (data) => {
       return "red";
     }
   };
+
   useEffect(() => {
     if (data.data.length > 0) {
-      setLatestYValue(data.data[data.data.length - 1].y);
+      const lastDataPoint = data.data[data.data.length - 1];
+      const initialPercentage = lastDataPoint.y; // Initial percentage
+      const timeToReduce = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+      // Calculate the percentage reduction required per minute
+      const percentageReductionPerMinute =
+        initialPercentage / (timeToReduce / (1000 * 60));
+
+      const currentTime = new Date().getTime();
+      const triggerTime = new Date(lastDataPoint.x).getTime();
+      const timeDifference = currentTime - triggerTime;
+
+      // Calculate the reduced percentage based on time difference
+      const calculatedPercentage = Math.max(
+        initialPercentage -
+          percentageReductionPerMinute * (timeDifference / (1000 * 60)),
+        0
+      );
+      setLatestYValue(calculatedPercentage);
+
+      const intervalId = setInterval(() => {
+        setLatestYValue((prevYValue) =>
+          Math.max(prevYValue - percentageReductionPerMinute, 0)
+        );
+      }, 1 * 60 * 1000);
+
+      return () => clearInterval(intervalId);
     }
   }, [data.data]);
-
-  // Function to reduce the percentage by 1% every 5 minutes
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setLatestYValue((prevYValue) => Math.max(prevYValue - 5, 0));
-    }, 2 * 60 * 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   // Calculate the color based on the latestYValue
   const color = getColor(latestYValue);

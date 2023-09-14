@@ -4,7 +4,7 @@ import { Map, Marker, GeolocateControl, NavigationControl } from "react-map-gl";
 
 // import Calendar_tab from "../Calendar_tab";
 
-import Submit_success from "../Submit_success";
+import SubmitSuccess from "./SubmitSuccess";
 
 import {
   Grid,
@@ -15,10 +15,6 @@ import {
   Text,
   Popover,
 } from "@mantine/core";
-
-import { Tex } from "tabler-icons-react";
-
-import Earthpit_component from "./Earthpit_component";
 
 import { notifications } from "@mantine/notifications";
 
@@ -36,8 +32,6 @@ const MAPBOX_TOKEN =
 const Ssrmap = () => {
   const [showSubmitSuccess, setShowSubmitSuccess] = useState(false);
 
-  const [showEarthpitSuccess, setShowEarthpitSuccess] = useState(false);
-
   const [newPlace, setNewPlace] = useState({ lat: 0, lng: 0 });
 
   const [data, setData] = useState([]);
@@ -48,6 +42,9 @@ const Ssrmap = () => {
 
   const [long, setLong] = useState([]);
 
+  const [latError, setLatError] = useState("");
+  const [longError, setLongError] = useState("");
+
   //temperature, moisture, name (openWeather)
 
   const [tempt, setTempt] = useState([]);
@@ -56,12 +53,24 @@ const Ssrmap = () => {
 
   const [name, setName] = useState([]);
 
-  const handleClick = async (e) => {
-    e.preventDefault();
+  const handleLatChange = (e) => {
+    const newLat = e.target.value;
+    setLat(newLat);
+    if (!isValidLatitude(newLat)) {
+      setLatError("Invalid latitude");
+    } else {
+      setLatError("");
+    }
+  };
 
-    console.log("Earthpi Page");
-
-    setShowEarthpitSuccess(true);
+  const handleLongChange = (e) => {
+    const newLong = e.target.value;
+    setLong(newLong);
+    if (!isValidLongitude(newLong)) {
+      setLongError("Invalid longitude");
+    } else {
+      setLongError("");
+    }
   };
 
   const handleAddClick = async (e) => {
@@ -102,6 +111,51 @@ const Ssrmap = () => {
     // console.log("data:", data);
   };
 
+  const handleLatLong = async (e) => {
+    if (!/^(?:6[0-9]|7[0-9]|8[0-9]|90)(?:\.\d+)?$/.test(long)) {
+      notifications.show({
+        title: "Invalid Input",
+
+        message: "Please enter a valid longitude of India",
+
+        color: "red",
+      });
+    } else if (!/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat)) {
+      notifications.show({
+        title: "Invalid Input",
+
+        message: "Please enter a valid latitude of India",
+
+        color: "red",
+      });
+    } else if (long != "" && lat != "") {
+      const api_call = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather/?lat=${lat}&lon=${long}&units=metric&APPID=${api.key}`
+      );
+
+      const response = await api_call.json();
+
+      // console.log("response:", response);
+
+      // setData(response);
+
+      setTempt(response?.main?.temp);
+
+      console.log("Temperature is:", tempt);
+
+      setHum(response?.main?.humidity);
+
+      console.log("Humidity is:", hum);
+
+      setName(response?.name);
+    }
+    // console.log("data:", data);
+  };
+
+  const handleInputBlur = () => {
+    handleLatLong(); // Trigger on blur
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -113,18 +167,24 @@ const Ssrmap = () => {
       notifications.show({
         title: "Invalid Input",
 
-        message: "Please enter a valid number between 79 and 90.",
+        message: "Please enter a valid longitude of India",
 
         color: "red",
       });
     } else if (!/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat)) {
-      console.log("error");
+      notifications.show({
+        title: "Invalid Input",
+
+        message: "Please enter a valid latitude of India",
+
+        color: "red",
+      });
     } else {
       const blog = { long, lat, tempt, hum };
 
       try {
         const map_call = await fetch(
-          `http://localhost:4000/customapi?lat=${lat}&long=${long}&tempt=${tempt}&hum=${hum}`
+          `http://49.204.77.190:9000/customapi?lat=${lat}&long=${long}&tempt=${tempt}&hum=${hum}`
         );
 
         const responce_data = await map_call.json();
@@ -220,15 +280,7 @@ const Ssrmap = () => {
         });
       }
     }
-
-    // //   router.push({
-
-    // //     pathname: "/results",
-
-    // //   });
   };
-
-  //   const [newmapStyle, setMapStyle] = (useState < string) | (null > null);
 
   return (
     <div>
@@ -237,9 +289,7 @@ const Ssrmap = () => {
       </Text>
 
       {showSubmitSuccess ? (
-        <Submit_success setShowSubmitSuccess={setShowSubmitSuccess} />
-      ) : showEarthpitSuccess ? (
-        <Earthpit_component setShowEarthpitSuccess={setShowEarthpitSuccess} />
+        <SubmitSuccess setShowSubmitSuccess={setShowSubmitSuccess} />
       ) : (
         <Grid>
           <Grid.Col md={2} lg={2}></Grid.Col>
@@ -295,33 +345,41 @@ const Ssrmap = () => {
 
               <TextInput
                 label="Longitude"
+                labelProps={{ style: { fontSize: "16px", fontWeight: 600 } }}
+                mb="xl"
                 type="number"
                 id="longitude"
                 name="longitude"
                 placeholder="Longitude"
                 value={long}
                 onChange={(e) => setLong(e.target.value)}
+                onBlur={handleInputBlur}
                 error={!/^(?:6[0-9]|7[0-9]|8[0-9]|90)(?:\.\d+)?$/.test(long)}
                 required
               />
+              {longError && <p className="error-message">{longError}</p>}
 
               <TextInput
                 label="Latitude"
-                type="text" // Use type="text" to allow for custom validation
+                labelProps={{ style: { fontSize: "16px", fontWeight: 600 } }}
+                mb="xl"
+                type="number"
                 id="latitude"
                 name="latitude"
                 placeholder="Latitude"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
-                error={
-                  !/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat) // Check if lat is within the range -90 to 90
-                }
+                onBlur={handleInputBlur}
+                error={!/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat)}
                 step="0.0001"
                 required
               />
+              {latError && <p className="error-message">{latError}</p>}
 
               <TextInput
                 label="Temperature"
+                labelProps={{ style: { fontSize: "16px", fontWeight: 600 } }}
+                mb="xl"
                 type="number"
                 id="temperature"
                 name="temperature"
@@ -333,6 +391,7 @@ const Ssrmap = () => {
 
               <TextInput
                 label="Humidity"
+                labelProps={{ style: { fontSize: "16px", fontWeight: 600 } }}
                 type="number"
                 id="humidity"
                 name="humidity"
@@ -354,24 +413,11 @@ const Ssrmap = () => {
               >
                 Submit
               </Button>
-
-              <Button
-                compact
-                mt="xl"
-                radius="xl"
-                ml="xl"
-                variant="outline"
-                // onClick={() => router.push("/landing_page")}
-
-                onClick={handleClick}
-              >
-                Earthpit Calculator
-              </Button>
             </Box>
           </Grid.Col>
 
           <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 2 }}>
-            {!showSubmitSuccess && !showEarthpitSuccess && (
+            {!showSubmitSuccess && (
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Map
                   initialViewState={{

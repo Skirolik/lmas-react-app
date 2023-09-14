@@ -18,6 +18,7 @@ import { useInputState } from "@mantine/hooks";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { notifications } from "@mantine/notifications";
 
 function PasswordRequirement({ meets, label }) {
   return (
@@ -71,7 +72,7 @@ const RegistrationPage = () => {
   const [endDate, setEndDate] = useState(null);
 
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
@@ -141,7 +142,6 @@ const RegistrationPage = () => {
             message:
               "Registration failed, please contact the support team. Thank you!",
             color: "red",
-            icon: <AlertCircle size={24} color="white" />,
           });
         } else {
           console.log(response.data.message);
@@ -154,14 +154,22 @@ const RegistrationPage = () => {
               message:
                 "Registration successful. Check your email for confirmation.",
               color: "teal",
-              icon: <CircleCheck size={24} color="white" />,
             });
-            window.location.href = "/login";
+            const delay = 1500; // Adjust the delay as needed
+            setTimeout(() => {
+              window.location.href = "/";
+            }, delay);
           }
         }
       } catch (error) {
         console.error("Registration failed:", error.message);
         setRegistrationError("Registration failed. Please try again.");
+        notifications.show({
+          title: "Registration Failed",
+          message:
+            "Registration failed, please contact the support team. Thank you!",
+          color: "red",
+        });
       }
     }
   };

@@ -64,7 +64,7 @@ const ChangePassword = () => {
   const theme = useMantineTheme();
 
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const strength = getStrength(password);
   const checks = requirements.map((requirement, index) => (

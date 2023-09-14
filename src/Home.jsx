@@ -53,7 +53,7 @@ function Home() {
 
       if (userEmail) {
         setEmail(userEmail);
-        const socket = new WebSocket(`ws://127.0.0.1:7000`);
+        const socket = new WebSocket(`ws://52.172.4.41:7000`);
 
         console.log("Email", userEmail);
         console.log(userFirstname);
@@ -71,7 +71,7 @@ function Home() {
         socket.onmessage = (event) => {
           const newData = JSON.parse(event.data);
           setData(newData);
-          // console.log("Received data:", newData);
+          console.log("Received data:", newData);
           const lastTenData = newData.slice(-1);
           setChartData(lastTenData);
         };

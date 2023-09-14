@@ -51,7 +51,7 @@ const MaintanceForm = () => {
 
     // Send the form data to the backend server
     axios
-      .post("http://localhost:3000/api/submit-form", formData)
+      .post("http://49.204.77.190:3000/api/submit-form", formData)
       .then((response) => {
         // console.log(response.data.message); // Success message from the backend
         // Reset form fields after successful submission

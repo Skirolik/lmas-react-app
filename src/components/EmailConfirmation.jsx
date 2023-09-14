@@ -7,7 +7,7 @@ const EmailConfirmation = () => {
   const [confirmationMessage, setConfirmationMessage] = useState("");
 
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   useEffect(() => {
     // Make an API call to the backend to confirm the email

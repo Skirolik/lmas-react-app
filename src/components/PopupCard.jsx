@@ -6,7 +6,7 @@ import { CircleCheck, AlertCircle } from "tabler-icons-react";
 
 const PopupCard = ({ title, paragraph, bulletPoints, subject }) => {
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const userEmail = sessionStorage.getItem("userEmail");
   const userFirstname = sessionStorage.getItem("userFirstname");

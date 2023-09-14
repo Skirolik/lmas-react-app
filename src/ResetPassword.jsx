@@ -18,6 +18,8 @@ import { useInputState } from "@mantine/hooks";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { notifications } from "@mantine/notifications";
+import { CircleCheck, AlertCircle } from "tabler-icons-react";
 
 function PasswordRequirement({ meets, label }) {
   return (
@@ -62,7 +64,7 @@ const ResetPasswordPage = () => {
   const theme = useMantineTheme();
 
   // Set the default base URL for Axios
-  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const strength = getStrength(password);
   const checks = requirements.map((requirement, index) => (
@@ -88,12 +90,24 @@ const ResetPasswordPage = () => {
         } else {
           console.log(response.data.message);
           if (response.data.message === "Password reset successful.") {
+            notifications.show({
+              title: "Successful.",
+              message: "Password reset successful.",
+              color: "teal",
+              icon: <CircleCheck size={24} color="white" />,
+            });
             window.location.href = "/login";
           }
         }
       } catch (error) {
         console.error("Password reset failed:", error.message);
         setPasswordError("Password reset failed. Please try again.");
+        notifications.show({
+          title: "Request Failed",
+          message: "Password reset failed. Please try again.",
+          color: "red",
+          icon: <CircleCheck size={24} color="white" />,
+        });
       }
     }
   };

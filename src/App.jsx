@@ -44,7 +44,6 @@ import SmartEarthpit from "./SmartEarthpit";
 import SmartProtection from "./SmartProtection";
 import Maintenance from "./Maintenance";
 import Contact from "./Contact";
-
 import Login from "./Login";
 import LogoutPage from "./Logout";
 import RegistrationPage from "./components/Regestration";
@@ -118,7 +117,7 @@ function App() {
     },
     {
       path: "/maintanance",
-      name: "Maintance DB",
+      name: "Maintance",
       component: Maintenance,
       exact: true,
       logo: <IconLayoutKanban />,
@@ -272,10 +271,10 @@ function App() {
 
                 <div style={{ marginLeft: "auto" }}>
                   <Image
-                    maw={60}
+                    maw={30}
                     mx="auto"
                     radius="md"
-                    src="src/assets/niju.png"
+                    src="src/assets/ManavLogo2021.png"
                     alt="Random image"
                   />
                   <Text
@@ -286,7 +285,7 @@ function App() {
                       color: colorScheme === "dark" ? "white" : "Black",
                     }}
                   >
-                    Yo YO Niju P.P Presents:
+                    Manav Dashboard
                   </Text>
                 </div>
 

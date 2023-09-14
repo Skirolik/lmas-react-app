@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { notifications } from "@mantine/notifications";
 
 const ForgotPassword = () => {
   const theme = useMantineTheme();
@@ -19,7 +20,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.baseURL = "http://49.204.77.190:7070";
 
   const handlePasswordReset = async () => {
     setLoading(true);
@@ -34,10 +35,22 @@ const ForgotPassword = () => {
         email,
       });
       console.log("Password reset request sent successfully:", response.data);
+      notifications.show({
+        title: "Request sent.",
+        message:
+          "Password reset request sent successfully, please check your email.",
+        color: "teal",
+      });
       // Handle any success messages or redirection logic here
     } catch (error) {
       console.error("Password reset request failed:", error.message);
       // Handle any error messages or redirection logic here
+      notifications.show({
+        title: "Request failed.",
+        message:
+          "Password reset request failed. Please try again or contact support team. Thank you!",
+        color: "red",
+      });
     }
   };
 

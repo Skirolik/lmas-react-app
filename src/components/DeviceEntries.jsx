@@ -48,7 +48,7 @@ const DeviceEntries = () => {
   useEffect(() => {
     // Fetch data from the API endpoint
     axios
-      .get("http://127.0.0.1:3000/api/data")
+      .get("http://49.204.77.190:3000/api/data")
       .then((response) => {
         setData(response.data);
       })
@@ -100,7 +100,7 @@ const DeviceEntries = () => {
     if (editedRowId !== row.id) {
       setSelectedEntry(row);
       // Check if next_collection date has passed the current date
-      const nextCollectionDate = new Date(row.nextCollection);
+      const nextCollectionDate = new Date(row.next_collection);
       const currentDate = new Date();
 
       if (nextCollectionDate < currentDate) {
@@ -140,8 +140,8 @@ const DeviceEntries = () => {
   };
   const handleEditClick = (row) => {
     // Set the edited dates to the current row's dates
-    setEditedDateCollected(row.dateCollected);
-    setEditedNextCollection(row.nextCollection);
+    setEditedDateCollected(row.date_collected);
+    setEditedNextCollection(row.next_collection);
     // Set the edited row ID
     setEditedRowId(row.id);
   };
@@ -155,10 +155,10 @@ const DeviceEntries = () => {
 
     // Send the updated date values to the server to update the entry in the database
     axios
-      .post("http://localhost:3000/api/update-entry", {
+      .post("http://49.204.77.190:3000/api/update-entry", {
         id: editedRowId,
-        dateCollected: formattedDateCollected,
-        nextCollection: formattedNextCollection,
+        date_collected: formattedDateCollected,
+        next_collection: formattedNextCollection,
       })
       .then((response) => {
         console.log(response.data.message); // Success message from the backend
@@ -167,8 +167,8 @@ const DeviceEntries = () => {
           if (row.id === editedRowId) {
             return {
               ...row,
-              dateCollected: editedDateCollected,
-              nextCollection: editedNextCollection,
+              date_collected: editedDateCollected,
+              next_collection: editedNextCollection,
             };
           }
           return row;
@@ -299,7 +299,7 @@ const DeviceEntries = () => {
                             }
                           />
                         ) : (
-                          formatDate(row.dateCollected)
+                          formatDate(row.date_collected)
                         )}
                       </td>
                       <td>
@@ -313,7 +313,7 @@ const DeviceEntries = () => {
                             }
                           />
                         ) : (
-                          formatDate(row.nextCollection)
+                          formatDate(row.next_collection)
                         )}
                       </td>
                       {/* <td>
@@ -383,7 +383,7 @@ const DeviceEntries = () => {
                     }
                   />
                 ) : (
-                  formatDate(row.dateCollected)
+                  formatDate(row.date_collected)
                 )}
               </p>
               <p>
@@ -396,7 +396,7 @@ const DeviceEntries = () => {
                     }
                   />
                 ) : (
-                  formatDate(row.nextCollection)
+                  formatDate(row.next_collection)
                 )}
               </p>
               {editedRowId === row.id ? (
@@ -445,10 +445,10 @@ const DeviceEntries = () => {
             <Text mt="xl">Latitude: {selectedEntry.latitude}</Text>
             <Text mt="xl">Resistance: {selectedEntry.resistance}</Text>
             <Text mt="xl">
-              Date Collected: {formatDate(selectedEntry.dateCollected)}
+              Date Collected: {formatDate(selectedEntry.date_collected)}
             </Text>
             <Text mt="xl">
-              Next Collection: {formatDate(selectedEntry.nextCollection)}
+              Next Collection: {formatDate(selectedEntry.next_collection)}
             </Text>
             <Text mt="xl">Description: {selectedEntry.description}</Text>
             {/* Add more fields here as needed */}
