@@ -1,0 +1,47 @@
+/* src/FaultDetection.css */
+
+.fault-detection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.box-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    /* Gap between boxes */
+    width: 100%;
+}
+
+.box {
+    border: 2px solid #333;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 calc(25% - 20px);
+    /* Four boxes in a row, adjust as needed */
+}
+
+.structure {
+    width: 120px;
+    height: 120px;
+    border: 2px solid #333;
+    text-align: center;
+    line-height: 120px;
+    cursor: pointer;
+    margin: 10px;
+    transition: background-color 0.3s;
+}
+
+.cylinder {
+    border-radius: 60%;
+    background-color: #3498db;
+}
+
+/* Apply red background color to selected structures */
+.selected {
+    background-color: #ff0000;
+}

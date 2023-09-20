@@ -15,8 +15,9 @@ import {
   Image,
   Aside,
   Footer,
+  NavLink,
 } from "@mantine/core";
-import { CiDark, CiLight } from "react-icons/ci";
+import { IconSun, IconMoonStars } from "@tabler/icons-react";
 import { createStyles, useMantineTheme } from "@mantine/core";
 import {
   BrowserRouter as Router,
@@ -38,6 +39,10 @@ import ForgotPassword from "./components/ForgotPassword";
 import LogoutPage from "./Logout";
 import ResetPasswordPage from "./ResetPassword";
 import EmailConfirmation from "./components/EmailConfirmation";
+import Submit_success from "./Submit_success";
+import Fault_info from "./Fault_info";
+import Fault_detection from "./Fault_detection";
+import Fault_managment from "./Fault_managment";
 
 import Calendar_tab from "./Calendar_tab";
 import smart_earthpit from "./smart_earthpit";
@@ -55,9 +60,10 @@ import {
 } from "@tabler/icons-react";
 
 import Maintenance from "./Maintenance";
+import { IconGauge, IconFingerprint } from "@tabler/icons-react";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
 
   const handleLogin = () => {
     // Perform login logic here...
@@ -129,7 +135,7 @@ function App() {
 
   // mobile nav
   const [opened, setOpened] = useState(false);
-  const defaultColorScheme = "dark";
+  const defaultColorScheme = "light";
   // console.log(defaultColorScheme);
   const [colorScheme, setColorScheme] = useState(defaultColorScheme);
 
@@ -143,8 +149,8 @@ function App() {
     NavLink: {
       display: "block",
       width: "100%",
-      padding: theme.spacing.md,
-      marginTop: "5px",
+      padding: theme.spacing.sm,
+      marginTop: "8px",
       borderRadius: theme.radius.md,
       color: colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
       textDecoration: "none",
@@ -166,172 +172,234 @@ function App() {
         borderBlockColor: "#ffa8a8",
       },
     },
+    NestedLink: {
+      width: "100%",
+      padding: theme.spacing.md,
+      marginTop: "4px",
+      borderRadius: theme.radius.md,
+      color: colorScheme === "dark" ? "white" : "black",
+      textDecoration: "none",
+      "&:hover": {
+        backgroundColor:
+          colorScheme === "dark"
+            ? theme.colors.violet[4]
+            : theme.colors.blue[2],
+        color: colorScheme === "dark" ? "white" : "white",
+      },
+    },
+    NestedLinkActive: {
+      backgroundColor:
+        colorScheme === "dark" ? theme.colors.violet[4] : theme.colors.blue[2],
+    },
+    LargeFont: {
+      fontSize: "1.4rem", // Adjust the font size as needed
+    },
+    Largedata: {
+      fontSize: "1.1rem", // Adjust the font size as needed
+    },
   }));
 
   const { classes } = useStyles();
 
   return (
-    <Router>
-      <MantineProvider
-        theme={{
-          colorScheme: colorScheme,
-          fontFamily: "Open Sans, sans-serif",
-          loader: "bars",
-        }}
-        withGlobalStyles
-      >
-        <Notifications />
-        <AppShell
-          padding="md"
-          navbarOffsetBreakpoint="sm"
-          asideOffsetBreakpoint="sm"
-          navbar={
-            loggedIn && (
-              <Navbar
-                width={{ sm: 200 }}
-                padding="xs"
-                hidden={!opened}
-                hiddenBreakpoint="sm"
-              >
-                <Navbar.Section mt="xs"></Navbar.Section>
+    <MantineProvider
+      theme={{
+        colorScheme: colorScheme,
+        fontFamily: "Open Sans, sans-serif",
+        loader: "bars",
+      }}
+      withGlobalStyles
+    >
+      <Notifications />
+      <AppShell
+        padding="md"
+        navbarOffsetBreakpoint="sm"
+        asideOffsetBreakpoint="sm"
+        navbar={
+          loggedIn && (
+            <Navbar
+              width={{ sm: 200 }}
+              padding="xs"
+              hidden={!opened}
+              hiddenBreakpoint="sm"
+            >
+              <Navbar.Section mt="xs"></Navbar.Section>
 
-                <Navbar.Section grow mt="md">
-                  {views.map((view, index) => (
-                    <Link
-                      to={view.path}
-                      key={index}
-                      onClick={() => setOpened(false)}
-                      className={`${classes.NavLink} ${classes.NavLinkActive}`}
-                    >
-                      <Group>
-                        <span>{view.logo}</span>
-                        <Text>{view.name}</Text>
-                      </Group>
-                    </Link>
-                  ))}
-                </Navbar.Section>
-                <Navbar.Section>
-                  <Divider size="lg" mb="xl" />
-                  <Users />
-
-                  <Button
-                    leftIcon={<Logout />}
-                    variant="outline"
-                    color="red"
-                    radius="md"
-                    loaderPosition="right"
-                    onClick={handleLogout}
-                    className={`${classes.Button} `}
-                    mb="xl"
+              <Navbar.Section grow mt="md">
+                {views.map((view, index) => (
+                  <Link
+                    to={view.path}
+                    key={index}
+                    onClick={() => setOpened(false)}
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
                   >
-                    Logout
-                  </Button>
-                </Navbar.Section>
-              </Navbar>
-            )
-          }
-          footer={loggedIn && <Footer height={5} p="sm"></Footer>}
-          aside={
-            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-              <Aside
-                p="sm"
-                hiddenBreakpoint="sm"
-                width={{ sm: 20, lg: 2 }}
-              ></Aside>
-            </MediaQuery>
-          }
-          header={
-            <Header height={80} padding="sm">
+                    <Group>
+                      <span>{view.logo}</span>
+                      <Text>{view.name}</Text>
+                    </Group>
+                  </Link>
+                ))}
+              </Navbar.Section>
+              <Navbar.Section grow mt="md">
+                <NavLink
+                  label={<Text className={classes.Largedata}>Fault</Text>}
+                  icon={<IconFingerprint stroke={2} />}
+                  childrenOffset={25}
+                  defaultClosed
+                  className={` ${classes.NestedLink} ${classes.NestedLinkActive} ${classes.LargeFont} `}
+                >
+                  <Link
+                    to="/fault_info"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Fault Info</Text>
+                  </Link>
+                  <Link
+                    to="/fault_detection"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    <Text fz="lg">Fault Detection</Text>
+                  </Link>
+                </NavLink>
+              </Navbar.Section>
+              <Navbar.Section>
+                <Divider size="lg" mb="xl" />
+                <Users />
+
+                <Button
+                  leftIcon={<Logout />}
+                  variant="outline"
+                  color="red"
+                  radius="md"
+                  loaderPosition="right"
+                  onClick={handleLogout}
+                  className={`${classes.Button} `}
+                  mb="xl"
+                >
+                  Logout
+                </Button>
+              </Navbar.Section>
+            </Navbar>
+          )
+        }
+        footer={loggedIn && <Footer height={5} p="sm"></Footer>}
+        aside={
+          <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+            <Aside
+              p="sm"
+              hiddenBreakpoint="sm"
+              width={{ sm: 20, lg: 2 }}
+            ></Aside>
+          </MediaQuery>
+        }
+        header={
+          <Header height={{ base: 60, md: 70 }} p="xs">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                <Burger
+                  opened={opened}
+                  onClick={() => setOpened((o) => !o)}
+                  size="sm"
+                  color={useMantineTheme().colors.gray[6]}
+                  mr="xl"
+                  ml="xl"
+                />
+              </MediaQuery>
+
               <div
                 style={{
+                  marginLeft: "auto",
                   display: "flex",
                   alignItems: "center",
-                  height: "100%",
                 }}
               >
-                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                  <Burger
-                    opened={opened}
-                    onClick={() => setOpened((o) => !o)}
-                    size="sm"
-                    color={useMantineTheme().colors.gray[6]}
-                    mr="xl"
-                  />
-                </MediaQuery>
-
-                <div style={{ marginLeft: "auto" }}>
-                  <Text
-                    style={{
-                      fontSize: "xl",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      color: colorScheme === "dark" ? "white" : "Black",
-                    }}
-                  >
-                    Yo YO Niju P.P Presents:
-                  </Text>
-                </div>
-
-                <div style={{ marginLeft: "auto" }}>
-                  <ActionIcon
-                    variant="outline"
-                    onClick={() => toggleColorScheme()}
-                    size={30}
-                    color={colorScheme === "dark" ? "yellow" : "indigo"}
-                  >
-                    {colorScheme === "dark" ? <CiLight /> : <CiDark />}
-                  </ActionIcon>
-                </div>
+                <Image
+                  width="20%"
+                  // height="20%"
+                  src="../src/assets/ManavLogo2021.png"
+                />
+                <Text
+                  style={{
+                    fontSize: "xl",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    color: colorScheme === "dark" ? "white" : "Black",
+                  }}
+                >
+                  Yo YO Niju P.P Presents:
+                </Text>
               </div>
-            </Header>
-          }
-          styles={(theme) => ({
-            main: {
-              backgroundColor:
-                theme.colorScheme === "dark"
-                  ? theme.colors.dark[8]
-                  : theme.colors.gray[1],
-            },
-          })}
-        >
-          <Routes>
-            <Route path="/register" element={<RegistrationPage />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/logout" element={<LogoutPage />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route
-              path="/reset-password/:resetToken"
-              element={<ResetPasswordPage />}
-            />
-            <Route path="/confirm/:token" element={<EmailConfirmation />} />
-            {/* <Route path="/maintanance" element={<Maintenance />} /> */}
 
-            {/* Public routes */}
-            {!loggedIn && (
-              <Route path="/" element={<Login onLogin={handleLogin} />} />
-            )}
+              <div style={{ marginLeft: "auto" }}>
+                <ActionIcon
+                  variant="outline"
+                  onClick={() => toggleColorScheme()}
+                  size={30}
+                  mr="md"
+                  color={colorScheme === "dark" ? "grape" : "indigo"}
+                >
+                  {colorScheme === "dark" ? <IconSun /> : <IconMoonStars />}
+                </ActionIcon>
+              </div>
+            </div>
+          </Header>
+        }
+        styles={(theme) => ({
+          main: {
+            backgroundColor:
+              theme.colorScheme === "dark"
+                ? theme.colors.dark[7]
+                : theme.colors.gray[0],
+          },
+        })}
+      >
+        <Routes>
+          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/reset-password/:resetToken"
+            element={<ResetPasswordPage />}
+          />
+          <Route path="/confirm/:token" element={<EmailConfirmation />} />
+          {/* <Route path="/maintanance" element={<Maintenance />} /> */}
 
-            {/* Private routes */}
-            {loggedIn && (
-              <>
-                <Route path="/settings" element={<Settings />} />
-                {views.map((view, index) => (
-                  <Route
-                    key={index}
-                    exact={view.exact}
-                    path={view.path}
-                    element={<view.component />}
-                  />
-                ))}
-              </>
-            )}
+          {/* Public routes */}
+          {!loggedIn && (
+            <Route path="/" element={<Login onLogin={handleLogin} />} />
+          )}
 
-            {/* Redirect to login page if route not found */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </AppShell>
-      </MantineProvider>
-    </Router>
+          {/* Private routes */}
+          {loggedIn && (
+            <>
+              <Route path="/fault_info" element={<Fault_info />} />
+              <Route path="/fault_detection" element={<Fault_detection />} />
+              <Route path="/settings" element={<Settings />} />
+              {views.map((view, index) => (
+                <Route
+                  key={index}
+                  exact={view.exact}
+                  path={view.path}
+                  element={<view.component />}
+                />
+              ))}
+              <Route path="/submit_success" element={<Submit_success />} />
+            </>
+          )}
+
+          {/* Redirect to login page if route not found */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </AppShell>
+    </MantineProvider>
   );
 }
 

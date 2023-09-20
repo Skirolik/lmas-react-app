@@ -1,5 +1,6 @@
 import React from "react";
 import ComingSoonPage from "./Coming_soon";
+import Ssrmap from "./components/Ssrmap";
 
 const smart_earthpit = () => {
   const popupContent = {
@@ -13,13 +14,7 @@ const smart_earthpit = () => {
       "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     ],
   };
-  return (
-    <ComingSoonPage
-      title={popupContent.title}
-      paragraph={popupContent.paragraph}
-      bulletPoints={popupContent.bulletPoints}
-    />
-  );
+  return <Ssrmap />;
 };
 
 export default smart_earthpit;

@@ -7,6 +7,7 @@ import {
   Card,
   Textarea,
   Accordion,
+  Select,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { LoremIpsum } from "react-lorem-ipsum";
@@ -61,6 +62,43 @@ const GetInTouch = () => {
               placeholder="Enter your email address"
               type="email"
               required
+            />
+            <Select
+              dropdownPosition="top"
+              label="Pick the subject"
+              placeholder="Pick one"
+              searchable
+              nothingFound="No options"
+              dropdownComponent="div"
+              data={[
+                { value: "lmas", label: "LMAS" },
+                { value: "smart_earthing", label: "Smart Earthing" },
+                { value: "rferm", label: "RFERM" },
+                { value: "maintanance", label: "Maintance Assitance" },
+                { value: "order", label: "Place Order" },
+                { value: "other", label: "Other" },
+              ]}
+              required
+              styles={(theme) => ({
+                item: {
+                  // applies styles to selected item
+                  "&[data-selected]": {
+                    "&, &:hover": {
+                      backgroundColor:
+                        theme.colorScheme === "dark"
+                          ? theme.colors.violet[4]
+                          : theme.colors.blue[2],
+                      color:
+                        theme.colorScheme === "dark"
+                          ? theme.white
+                          : theme.white,
+                    },
+                  },
+
+                  // applies styles to hovered item (with mouse or keyboard)
+                  "&[data-hovered]": {},
+                },
+              })}
             />
             <Textarea
               label="Message"
@@ -118,6 +156,49 @@ const GetInTouch = () => {
                 <Accordion.Panel>
                   {" "}
                   <LoremIpsum p={2} />
+                  <TextInput
+                    label="Email"
+                    placeholder="Enter your email address"
+                    type="email"
+                    required
+                  />
+                  <Select
+                    dropdownPosition="top"
+                    label="Pick the subject"
+                    placeholder="Pick one"
+                    searchable
+                    nothingFound="No options"
+                    dropdownComponent="div"
+                    data={[
+                      { value: "lmas", label: "LMAS" },
+                      { value: "smart_earthing", label: "Smart Earthing" },
+                      { value: "rferm", label: "RFERM" },
+                      { value: "maintanance", label: "Maintance Assitance" },
+                      { value: "order", label: "Place Order" },
+                      { value: "other", label: "Other" },
+                    ]}
+                    required
+                    styles={(theme) => ({
+                      item: {
+                        // applies styles to selected item
+                        "&[data-selected]": {
+                          "&, &:hover": {
+                            backgroundColor:
+                              theme.colorScheme === "dark"
+                                ? theme.colors.violet[4]
+                                : theme.colors.blue[2],
+                            color:
+                              theme.colorScheme === "dark"
+                                ? theme.white
+                                : theme.white,
+                          },
+                        },
+
+                        // applies styles to hovered item (with mouse or keyboard)
+                        "&[data-hovered]": {},
+                      },
+                    })}
+                  />
                 </Accordion.Panel>
               </Accordion.Item>
             </Accordion>

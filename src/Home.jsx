@@ -8,6 +8,8 @@ import {
   Group,
   Center,
   Button,
+  Text,
+  Divider,
 } from "@mantine/core";
 
 import Data_table from "./components/Data_table";
@@ -17,6 +19,7 @@ import Progress_bar from "./components/Progress_bar";
 import Field_values from "./components/Field_values";
 import Battery_status from "./components/Battery_status";
 import Variable_count from "./components/Variable_count";
+import { Divide } from "tabler-icons-react";
 
 function Home() {
   const theme = useMantineTheme();
@@ -76,7 +79,7 @@ function Home() {
   useEffect(() => {
     //const socket = new WebSocket("ws://52.172.4.41:7000");
 
-    const socket = new WebSocket(`ws://localhost:5000`);
+    const socket = new WebSocket(`ws://localhost:7000`);
 
     console.log("Email", email);
 
@@ -153,13 +156,33 @@ function Home() {
     x: row[4],
     y: row[7],
   }));
+  const temp = data.map((row) => ({
+    x: row[4],
+    y: Number(row[14]),
+  }));
+  const pressure = data.map((row) => ({
+    x: row[4],
+    y: Number(row[15]),
+  }));
+  const humidity = data.map((row) => ({
+    x: row[4],
+    y: Number(row[16]),
+  }));
 
   return (
     <>
       <Grid mb="xl">
-        <Grid.Col md={4} lg={3}></Grid.Col>
-        <Grid.Col md={2} lg={6}>
-          <Progress_bar data={transformedData} />
+        <Grid.Col md={4} lg={1}></Grid.Col>
+        <Grid.Col md={2} lg={10}>
+          <Progress_bar
+            data={transformedData}
+            value={diaDataSpark}
+            env={diaDataEnvironment}
+            diac={diaDataElectroStatic}
+            temp={temp}
+            pressure={pressure}
+            humidity={humidity}
+          />
         </Grid.Col>
         <Grid.Col md={2} lg={2}></Grid.Col>
       </Grid>
@@ -167,29 +190,14 @@ function Home() {
       <Grid mt="xl" mb="xl">
         <Grid.Col md={4} lg={1}></Grid.Col>
         <Grid.Col md={4} lg={4}>
-          <Data_table data={data} />
+          <Card withBorder radius="lg" shadow="xl" padding="md">
+            <Data_table data={data} />
+          </Card>
         </Grid.Col>
-        <Grid.Col md={2} lg={1}></Grid.Col>
-        <Grid.Col md={2} lg={4}>
-          <Field_values
-            data={diaDataElectroStatic}
-            color="yellow"
-            title="Electro-Static"
-          />
-          <Field_values data={diaDataSpark} color="green" title="Spark" />
-          <Field_values
-            data={diaDataEnvironment}
-            color="blue"
-            title="Environment"
-          />
-        </Grid.Col>
-      </Grid>
 
-      <Grid p="50px" mt="xl">
-        <Grid.Col md={4} lg={1}></Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>Static Count </h1>
+        <Grid.Col md={2} lg={2}>
+          <Card shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Static</h1>
 
             <Center>
               <Variable_count
@@ -199,38 +207,8 @@ function Home() {
               />
             </Center>
           </Card>
-        </Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>Spark Count</h1>
-            <Center>
-              <Variable_count
-                data={sparkData}
-                color={"#66a80f"}
-                color2={"#e9fac8"}
-              />
-            </Center>
-          </Card>
-        </Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>Weather</h1>
-            <Center>
-              <Variable_count
-                data={envData}
-                color={"#66a80f"}
-                color2={"#e9fac8"}
-              />
-            </Center>
-          </Card>
-        </Grid.Col>
-        <Grid.Col md={4} lg={2}></Grid.Col>
-      </Grid>
-      <Grid p="50px" mt="xl">
-        <Grid.Col md={4} lg={1}></Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>Total Predictions</h1>
+          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Count</h1>
             <Center>
               <Battery_status
                 data={transformerData}
@@ -240,9 +218,19 @@ function Home() {
             </Center>
           </Card>
         </Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>Battery status</h1>
+        <Grid.Col md={2} lg={2}>
+          <Card shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Spark</h1>
+            <Center>
+              <Variable_count
+                data={sparkData}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
+              />
+            </Center>
+          </Card>
+          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Battery</h1>
             <Center>
               <Battery_status
                 data={transformerData}
@@ -252,9 +240,19 @@ function Home() {
             </Center>
           </Card>
         </Grid.Col>
-        <Grid.Col md={4} lg={3}>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <h1>SMART Protection </h1>
+        <Grid.Col md={2} lg={2}>
+          <Card shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Weather</h1>
+            <Center>
+              <Variable_count
+                data={envData}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
+              />
+            </Center>
+          </Card>
+          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+            <h1>Smart Pit</h1>
             <div style={blockedStyle}>
               <Center>
                 <Battery_status
@@ -269,10 +267,17 @@ function Home() {
             </Center>
           </Card>
         </Grid.Col>
-        <Grid.Col md={4} lg={2}></Grid.Col>
       </Grid>
-
-      <Lmap data={mapData} />
+      <Grid>
+        <Grid.Col md={4} lg={1}></Grid.Col>
+        <Grid.Col md={4} lg={10}>
+          {" "}
+          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+            <Lmap data={mapData} />
+          </Card>
+        </Grid.Col>
+        <Grid.Col></Grid.Col>
+      </Grid>
     </>
   );
 }

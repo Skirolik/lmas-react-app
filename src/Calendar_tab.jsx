@@ -57,7 +57,7 @@ const Calendar_tab = () => {
 
   ///local hosting
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:5000");
+    const socket = new WebSocket("ws://localhost:7000");
 
     socket.onopen = () => {
       // console.log("WebSocket connection established.");
