@@ -1,3 +1,6 @@
+import React from "react";
+import CustomNode from "./CustomNode";
+
 const nodes = [
   {
     id: "A",
@@ -7,7 +10,7 @@ const nodes = [
     style: {
       width: 400,
       height: 240,
-      backgroundColor: "rgba(240,240,240,0.25)",
+      backgroundColor: "rgba(20,240,240,0.25)",
     },
   },
   {
@@ -26,7 +29,10 @@ const nodes = [
   },
   {
     id: "A-2",
-    data: { label: "slave-1" },
+    type: "customNode",
+    data: {
+      label: "slave-1",
+    },
     position: { x: 80, y: 150 },
     parentNode: "A",
     extent: "parent",

@@ -3,6 +3,8 @@ import ReactFlow, { Background } from "react-flow-renderer";
 import { Input } from "@mantine/core";
 import initaialNodes from "./nodes.jsx";
 import initialEdges from "./edges.jsx";
+import CustomNode from "./CustomNode";
+const nodeTypes = { customNode: CustomNode };
 
 const Binary_tree = () => {
   const [nodes, setNodes] = useState(initaialNodes);
@@ -10,13 +12,18 @@ const Binary_tree = () => {
   const [newValue, setNewValue] = useState("");
   const [userInputId, setUserInputId] = useState("");
   const [updateCount, setUpdateCount] = useState(0);
+  const [useredgeId, setUseredgeId] = useState("");
+  const [updateval, setUpdateval] = useState(0);
+  const [edgeval, setEdgeval] = useState("");
+
+  console.log("edges", edges);
 
   const handleNodeClick = (event, node) => {
     // Toggle the background color
     const newBackgroundColor = node.data.isBlue ? "white" : "pink";
-    console.log(newBackgroundColor);
-    console.log("style", node.style.backgroundColor);
-    console.log("val", node.value);
+    // console.log(newBackgroundColor);
+    // console.log("style", node.style.backgroundColor);
+    // console.log("val", node.value);
 
     if (node.id === "A-2") {
       node.style.backgroundColor = newBackgroundColor;
@@ -49,8 +56,8 @@ const Binary_tree = () => {
       console.log(numericValue);
 
       if (node.data && numericValue > 5) {
-        console.log("hi");
-        console.log("bg", node.style.backgroundColor);
+        // console.log("hi");
+        // console.log("bg", node.style.backgroundColor);
 
         // Update background color and text color
         node.style.backgroundColor = "pink";
@@ -83,11 +90,11 @@ const Binary_tree = () => {
     });
 
     setNodes(updatedNodes);
-    console.log(nodes);
+    // console.log(nodes);
   }, [updateCount]);
 
   const handleUpdateClick = () => {
-    console.log("new", newValue);
+    // console.log("new", newValue);
 
     // Update the value for the specific node specified by userInputId
     const updatedNodes = nodes.map((node) => {
@@ -103,13 +110,49 @@ const Binary_tree = () => {
 
     setNodes(updatedNodes);
     setUpdateCount(updateCount + 1);
-    console.log(nodes);
+    // console.log(nodes);
   };
+
+  const handleClick = () => {
+    console.log("new", edgeval);
+    console.log("new2", useredgeId);
+
+    const updateEdges = edges.map((edge) => {
+      if (edge.id === useredgeId) {
+        console.log("edgeid", edge.value);
+        console.log("inside if statmenet");
+
+        console.log("stroke color", edge.style.stroke);
+
+        return {
+          ...edge,
+
+          style: {
+            ...edge.style,
+            stroke: "green",
+          },
+          animated: false,
+        };
+      } else {
+        console.log("not in if loop");
+        return edge;
+      }
+    });
+    // setEdges(updateEdges);
+    setEdges(updateEdges);
+    console.log("updated edges", updateEdges);
+  };
+
+  useEffect(() => {
+    // Use useEffect to simulate a reload when edges change
+    // This will ensure the ReactFlow component re-renders when edges change
+  }, [edges]);
 
   return (
     <div style={{ height: "400px", width: "100%" }}>
       <ReactFlow
         nodes={nodes}
+        nodeTypes={nodeTypes}
         edges={edges}
         fitView
         zoomOnScroll={false}
@@ -133,6 +176,21 @@ const Binary_tree = () => {
           onChange={(e) => setUserInputId(e.target.value)}
         />
         <button onClick={handleUpdateClick}>Update</button>
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Enter value"
+          value={edgeval}
+          onChange={(e) => setEdgeval(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Enter ID"
+          value={useredgeId}
+          onChange={(e) => setUseredgeId(e.target.value)}
+        />
+        <button onClick={handleClick}>Update</button>
       </div>
     </div>
   );

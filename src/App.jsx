@@ -50,6 +50,7 @@ import smart_protection from "./smart_protection";
 import Settings from "./Settings";
 import Users from "./Users";
 import Contact from "./Contact";
+import Rectractable from "./Rectractable";
 import {
   IconHome2,
   IconCalendar,
@@ -116,6 +117,13 @@ function App() {
       component: smart_protection,
       exact: true,
       logo: <IconActivityHeartbeat style={{ fontSize: "12px" }} />,
+    },
+    {
+      path: "/Rectractable",
+      name: "Layout",
+      component: Rectractable,
+      exact: true,
+      logo: <IconCalendar />,
     },
     {
       path: "/maintanance",
