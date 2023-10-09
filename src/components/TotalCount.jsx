@@ -5,31 +5,34 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useMantineTheme } from "@mantine/core";
 
-const BatteryStatus = ({ data, color, color2 }) => {
+const TotalCount = ({ data, color, color2 }) => {
   const theme = useMantineTheme();
   // console.log("sData:", data);
 
-  const [batteryCount, setBatteryCount] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState("");
+  const [totalCount, setTotalCount] = useState(0);
   const [progress, setProgress] = useState(0);
-  const latestBatteryReading = data.reduce((latest, current) => {
-    if (!latest || current.x > latest.x) {
-      return current;
-    }
-    return latest;
-  }, null);
-
-  let batteryReading = latestBatteryReading ? latestBatteryReading.y : null;
 
   useEffect(() => {
     const calculateProgress = () => {
-      const maxBattery = 14.0;
-      const batteryReadingPercent = (batteryReading / maxBattery) * 100;
-      batteryReading = batteryReadingPercent.toFixed(0);
+      const currentDate = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+      // console.log("3o days ago", thirtyDaysAgo);
 
-      console.log("Battery", batteryReading);
+      let count = 0;
 
-      setBatteryCount(batteryReading + "%");
-      setProgress(batteryReading);
+      data.forEach((row) => {
+        const date = new Date(row.x);
+
+        // Check if the date is within the last 30 days
+        if (date >= thirtyDaysAgo && date <= currentDate && row.y >= 40) {
+          count++;
+        }
+      });
+
+      setTotalCount(count);
+      setProgress((count / data.length) * 100);
     };
 
     calculateProgress();
@@ -40,9 +43,9 @@ const BatteryStatus = ({ data, color, color2 }) => {
   return (
     <div style={{ width: "50%", height: "50%", position: "relative" }}>
       <CircularProgressbar
-        value={batteryCount}
-        text={batteryCount}
-        maxValue={100}
+        value={totalCount}
+        text={totalCount}
+        maxValue={1000}
         circleRatio={1}
         styles={{
           trail: {
@@ -67,4 +70,4 @@ const BatteryStatus = ({ data, color, color2 }) => {
   );
 };
 
-export default BatteryStatus;
+export default TotalCount;

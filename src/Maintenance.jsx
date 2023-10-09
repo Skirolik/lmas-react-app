@@ -9,19 +9,22 @@ import {
   IconPhoto,
   IconMessageCircle,
   IconSettings,
+  IconDeviceAnalytics,
+  IconAnalyzeFilled,
+  IconBrandTrello,
 } from "@tabler/icons-react";
 
 const Maintenance = () => {
   return (
-    <Tabs defaultValue="gallery">
-      <Tabs.List>
-        <Tabs.Tab value="gallery" icon={<IconPhoto size="0.8rem" />}>
-          Mantiance Form
+    <Tabs defaultValue="gallery" radius="lg" variant="outline">
+      <Tabs.List grow>
+        <Tabs.Tab value="gallery" icon={<IconDeviceAnalytics size="0.8rem" />}>
+          Maintenance Form
         </Tabs.Tab>
-        <Tabs.Tab value="messages" icon={<IconMessageCircle size="0.8rem" />}>
+        <Tabs.Tab value="messages" icon={<IconAnalyzeFilled size="0.8rem" />}>
           Data
         </Tabs.Tab>
-        <Tabs.Tab value="settings" icon={<IconSettings size="0.8rem" />}>
+        <Tabs.Tab value="settings" icon={<IconBrandTrello size="0.8rem" />}>
           Timeline
         </Tabs.Tab>
       </Tabs.List>

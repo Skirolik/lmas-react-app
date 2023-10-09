@@ -1,411 +1,199 @@
-import React, { useEffect, useState } from "react";
-
-import { Map, Marker, GeolocateControl, NavigationControl } from "react-map-gl";
-
-// import Calendar_tab from "../Calendar_tab";
-
-import Submit_success from "../Submit_success";
-
-import {
-  Grid,
-  TextInput,
-  Button,
-  Box,
-  Card,
-  Text,
-  Popover,
-} from "@mantine/core";
-
-import { Tex } from "tabler-icons-react";
-
-import Earthpit_component from "./Earthpit_component";
-
-import { notifications } from "@mantine/notifications";
-
-import { CircleCheck, AlertCircle } from "tabler-icons-react";
-
-const api = {
-  key: "a637bc8ded805a3c49a86ab76bd20f34",
-
-  base: "https://api.openweathermap.org/data/2.5/",
-};
-
-const MAPBOX_TOKEN =
-  "pk.eyJ1Ijoic2tpcm8iLCJhIjoiY2w1aTZjN2x2MDI3ODNkcHp0cnhuZzVicSJ9.HMjwHtHf_ttkh_aImSX-oQ";
-
-const Ssrmap = () => {
-  const [showSubmitSuccess, setShowSubmitSuccess] = useState(false);
-
-  const [showEarthpitSuccess, setShowEarthpitSuccess] = useState(false);
-
-  const [newPlace, setNewPlace] = useState({ lat: 0, lng: 0 });
-
-  const [data, setData] = useState([]);
-
-  //latitude and longitude
-
-  const [lat, setLat] = useState([]);
-
-  const [long, setLong] = useState([]);
-
-  //temperature, moisture, name (openWeather)
-
-  const [tempt, setTempt] = useState([]);
-
-  const [hum, setHum] = useState([]);
-
-  const [name, setName] = useState([]);
-
-  const handleClick = async (e) => {
-    e.preventDefault();
-
-    console.log("Earthpi Page");
-
-    setShowEarthpitSuccess(true);
-  };
-
-  const handleAddClick = async (e) => {
-    console.log(e.lngLat);
-
-    const { lng, lat } = e.lngLat;
-
-    setLat(lat);
-
-    setLong(lng);
-
-    setNewPlace({
-      lat,
-
-      lng,
-    });
-
-    const api_call = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather/?lat=${lat}&lon=${lng}&units=metric&APPID=${api.key}`
-    );
-
-    const response = await api_call.json();
-
-    // console.log("response:", response);
-
-    // setData(response);
-
-    setTempt(response?.main?.temp);
-
-    console.log("Temperature is:", tempt);
-
-    setHum(response?.main?.humidity);
-
-    console.log("Humidity is:", hum);
-
-    setName(response?.name);
-
-    // console.log("data:", data);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    console.log("submit");
-
-    console.log(lat);
-
-    if (!/^(?:6[0-9]|7[0-9]|8[0-9]|90)(?:\.\d+)?$/.test(long)) {
-      notifications.show({
-        title: "Invalid Input",
-
-        message: "Please enter a valid number between 79 and 90.",
-
-        color: "red",
-      });
-    } else if (!/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat)) {
-      console.log("error");
-    } else {
-      const blog = { long, lat, tempt, hum };
-
-      try {
-        const map_call = await fetch(
-          `http://localhost:4000/customapi?lat=${lat}&long=${long}&tempt=${tempt}&hum=${hum}`
-        );
-
-        const responce_data = await map_call.json();
-
-        console.log("value", responce_data[0]);
-
-        console.log(responce_data[1]);
-
-        console.log("ionization gradeint", responce_data[2]);
-
-        const sr = responce_data[1];
-
-        const ion_gradient = responce_data[2];
-
-        // window.location.href = "/submit_success";
-
-        localStorage.setItem("soil", sr);
-
-        localStorage.setItem("temp", tempt);
-
-        localStorage.setItem("hum", hum);
-
-        localStorage.setItem("long", long);
-
-        localStorage.setItem("lat", lat);
-
-        localStorage.setItem("ion", ion_gradient);
-
-        //soil_charateristics
-
-        localStorage.setItem("cal", responce_data[0][0]);
-
-        localStorage.setItem("erosion", responce_data[0][1]);
-
-        localStorage.setItem("Soil_depth", responce_data[0][2]);
-
-        localStorage.setItem("salinity", responce_data[0][3]);
-
-        localStorage.setItem("surface_texture", responce_data[0][4]);
-
-        localStorage.setItem("sodacity", responce_data[0][5]);
-
-        localStorage.setItem("flooding", responce_data[0][6]);
-
-        localStorage.setItem("drainage", responce_data[0][7]);
-
-        localStorage.setItem("surface_stoniness", responce_data[0][8]);
-
-        localStorage.setItem("slope", responce_data[0][9]);
-
-        localStorage.setItem("cal1", responce_data[0][10]);
-
-        localStorage.setItem("erosion1", responce_data[0][11]);
-
-        localStorage.setItem("Soil_depth1", responce_data[0][12]);
-
-        localStorage.setItem("salinity1", responce_data[0][13]);
-
-        localStorage.setItem("surface_texture1", responce_data[0][14]);
-
-        localStorage.setItem("sodacity1", responce_data[0][15]);
-
-        localStorage.setItem("flooding1", responce_data[0][16]);
-
-        localStorage.setItem("drainage1", responce_data[0][17]);
-
-        localStorage.setItem("surface_stoniness1", responce_data[0][18]);
-
-        localStorage.setItem("slope1", responce_data[0][19]);
-
-        notifications.show({
-          title: "Success !!",
-
-          message:
-            "Just view or Download the report. Contact us for further clarification",
-
-          color: "teal",
-
-          icon: <CircleCheck size={24} color="white" />,
-        });
-
-        setShowSubmitSuccess(true);
-      } catch (error) {
-        notifications.show({
-          title: "Request Failed",
-
-          message:
-            "Check your Latitude and logitude , it looks like you are out of india",
-
-          color: "red",
-
-          icon: <AlertCircle size={24} color="black" />,
-        });
-      }
+import React, { useState, useEffect } from "react";
+import ReactFlow, { Background } from "react-flow-renderer";
+import { Input } from "@mantine/core";
+import initaialNodes from "./nodes.jsx";
+import initialEdges from "./edges.jsx";
+import CustomNode from "./CustomNode";
+const nodeTypes = { customNode: CustomNode };
+
+const Binary_tree = () => {
+  const [nodes, setNodes] = useState(initaialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const [newValue, setNewValue] = useState("");
+  const [userInputId, setUserInputId] = useState("");
+  const [updateCount, setUpdateCount] = useState(0);
+  const [useredgeId, setUseredgeId] = useState("");
+  const [updateval, setUpdateval] = useState(0);
+  const [edgeval, setEdgeval] = useState("");
+
+  console.log("edges", edges);
+
+  const handleNodeClick = (event, node) => {
+    // Toggle the background color
+    const newBackgroundColor = node.data.isBlue ? "white" : "pink";
+    // console.log(newBackgroundColor);
+    // console.log("style", node.style.backgroundColor);
+    // console.log("val", node.value);
+
+    if (node.id === "A-2") {
+      node.style.backgroundColor = newBackgroundColor;
     }
 
-    // //   router.push({
+    // Update the node data to reflect the color change
+    setNodes((prevNodes) =>
+      prevNodes.map((n) =>
+        n.id === "A-2"
+          ? {
+              ...n,
+              data: {
+                ...n.data,
+                style: {
+                  ...n.data.style,
+                  backgroundColor: newBackgroundColor,
+                },
+                isBlue: !n.data.isBlue,
+              },
+            }
+          : n
+      )
+    );
+    console.log(nodes);
+  };
+  useEffect(() => {
+    // Check the node values and update background colors
+    const updatedNodes = nodes.map((node) => {
+      const numericValue = parseFloat(node.value);
+      console.log(numericValue);
 
-    // //     pathname: "/results",
+      if (node.data && numericValue > 5) {
+        // console.log("hi");
+        // console.log("bg", node.style.backgroundColor);
 
-    // //   });
+        // Update background color and text color
+        node.style.backgroundColor = "pink";
+        node.style.color = "red";
+
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            style: {
+              ...node.style,
+              backgroundColor: "pink",
+            },
+          },
+        };
+      } else if (node.id === "A") {
+        // Skip updating background color for the parent node
+        return node;
+      } else {
+        // Reset background color and text color
+        return {
+          ...node,
+          style: {
+            ...node.style,
+            backgroundColor: "white",
+            color: "black",
+          },
+        };
+      }
+    });
+
+    setNodes(updatedNodes);
+    // console.log(nodes);
+  }, [updateCount]);
+
+  const handleUpdateClick = () => {
+    // console.log("new", newValue);
+
+    // Update the value for the specific node specified by userInputId
+    const updatedNodes = nodes.map((node) => {
+      if (node.id === userInputId) {
+        return {
+          ...node,
+          value: newValue,
+        };
+      } else {
+        return node;
+      }
+    });
+
+    setNodes(updatedNodes);
+    setUpdateCount(updateCount + 1);
+    // console.log(nodes);
   };
 
-  //   const [newmapStyle, setMapStyle] = (useState < string) | (null > null);
+  const handleClick = () => {
+    console.log("new", edgeval);
+    console.log("new2", useredgeId);
+
+    const updateEdges = edges.map((edge) => {
+      if (edge.id === useredgeId) {
+        console.log("edgeid", edge.value);
+        console.log("inside if statmenet");
+
+        console.log("stroke color", edge.style.stroke);
+
+        return {
+          ...edge,
+
+          style: {
+            ...edge.style,
+            stroke: "green",
+          },
+          animated: false,
+        };
+      } else {
+        console.log("not in if loop");
+        return edge;
+      }
+    });
+    // setEdges(updateEdges);
+    setEdges(updateEdges);
+    console.log("updated edges", updateEdges);
+  };
+
+  useEffect(() => {
+    // Use useEffect to simulate a reload when edges change
+    // This will ensure the ReactFlow component re-renders when edges change
+  }, [edges]);
 
   return (
-    <div>
-      <Text ta="center" tt="uppercase" mb="xl" fz="lg" fw={700}>
-        Smart Earthing
-      </Text>
-
-      {showSubmitSuccess ? (
-        <Submit_success setShowSubmitSuccess={setShowSubmitSuccess} />
-      ) : showEarthpitSuccess ? (
-        <Earthpit_component setShowEarthpitSuccess={setShowEarthpitSuccess} />
-      ) : (
-        <Grid>
-          <Grid.Col md={2} lg={2}></Grid.Col>
-
-          <Grid.Col xs={12} sm={6} md={6} lg={4}>
-            <Popover
-              width={200}
-              position="bottom"
-              withArrow
-              shadow="md"
-              mt="xl"
-              mb="xl"
-            >
-              <Popover.Target>
-                <Button mt="xl" radius="xl" variant="gradient">
-                  Toggle popover
-                </Button>
-              </Popover.Target>
-
-              <Popover.Dropdown>
-                <Text size="md">
-                  1.Click on Map or Enter Lat , Lon, Tmeperature and Humidity
-                </Text>
-
-                <Text size="md">
-                  2. Click Submit and get the predicted live Soil Resistivity
-                  Value
-                </Text>
-              </Popover.Dropdown>
-            </Popover>
-
-            <Box
-              sx={(theme) => ({
-                backgroundColor:
-                  theme.colorScheme === "dark"
-                    ? theme.colors.dark[6]
-                    : theme.colors.gray[2],
-
-                textAlign: "center",
-
-                padding: theme.spacing.xl,
-
-                borderRadius: theme.radius.md,
-
-                shadow: "xl",
-              })}
-              component="form"
-              maw={400}
-              mx="auto"
-              onSubmit={handleSubmit}
-            >
-              <Text mb="xl"> Soil Resitivity Prediction</Text>
-
-              <TextInput
-                label="Longitude"
-                type="number"
-                id="longitude"
-                name="longitude"
-                placeholder="Longitude"
-                value={long}
-                onChange={(e) => setLong(e.target.value)}
-                error={!/^(?:6[0-9]|7[0-9]|8[0-9]|90)(?:\.\d+)?$/.test(long)}
-                required
-              />
-
-              <TextInput
-                label="Latitude"
-                type="text" // Use type="text" to allow for custom validation
-                id="latitude"
-                name="latitude"
-                placeholder="Latitude"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                error={
-                  !/^-?((90(\.0+)?)|([0-8]?[0-9](\.\d+)?))$/.test(lat) // Check if lat is within the range -90 to 90
-                }
-                step="0.0001"
-                required
-              />
-
-              <TextInput
-                label="Temperature"
-                type="number"
-                id="temperature"
-                name="temperature"
-                placeholder="Temperature"
-                value={tempt}
-                onChange={(e) => setTempt(e.target.value)}
-                required
-              />
-
-              <TextInput
-                label="Humidity"
-                type="number"
-                id="humidity"
-                name="humidity"
-                placeholder="Humidity"
-                value={hum}
-                onChange={(e) => setHum(e.target.value)}
-                required
-              />
-
-              <Button
-                mt="xl"
-                radius="xl"
-                variant="gradient"
-                type="submit"
-
-                // onClick={() => router.push("/landing_page")}
-
-                // onClick={handleSubmit}
-              >
-                Submit
-              </Button>
-
-              <Button
-                compact
-                mt="xl"
-                radius="xl"
-                ml="xl"
-                variant="outline"
-                // onClick={() => router.push("/landing_page")}
-
-                onClick={handleClick}
-              >
-                Earthpit Calculator
-              </Button>
-            </Box>
-          </Grid.Col>
-
-          <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 2 }}>
-            {!showSubmitSuccess && !showEarthpitSuccess && (
-              <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Map
-                  initialViewState={{
-                    latitude: 24.1195,
-
-                    longitude: 81.115802,
-
-                    zoom: 3.5,
-                  }}
-                  style={{ width: "100%", height: 650 }}
-                  mapStyle="mapbox://styles/mapbox/streets-v9"
-                  mapboxAccessToken={MAPBOX_TOKEN}
-                  onClick={handleAddClick}
-                  onRender={(event) => event.target.resize()}
-                >
-                  {newPlace && lat >= -90 && lat <= 90 && (
-                    <Marker longitude={long} latitude={lat} color="blue" />
-                  )}
-
-                  <GeolocateControl position="top-left" />
-
-                  <NavigationControl position="top-left" />
-                </Map>
-              </Card>
-            )}
-          </Grid.Col>
-        </Grid>
-      )}
-
+    <div style={{ height: "400px", width: "100%" }}>
+      <ReactFlow
+        nodes={nodes}
+        nodeTypes={nodeTypes}
+        edges={edges}
+        fitView
+        zoomOnScroll={false}
+        zoomOnDoubleClick={false}
+        zoomOnPinch={false}
+        onNodeClick={handleNodeClick}
+      >
+        <Background />
+      </ReactFlow>
       <div>
-        <div></div>
+        <input
+          type="text"
+          placeholder="Enter value"
+          value={newValue}
+          onChange={(e) => setNewValue(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Enter ID"
+          value={userInputId}
+          onChange={(e) => setUserInputId(e.target.value)}
+        />
+        <button onClick={handleUpdateClick}>Update</button>
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Enter value"
+          value={edgeval}
+          onChange={(e) => setEdgeval(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Enter ID"
+          value={useredgeId}
+          onChange={(e) => setUseredgeId(e.target.value)}
+        />
+        <button onClick={handleClick}>Update</button>
       </div>
     </div>
   );
 };
 
-export default Ssrmap;
+export default Binary_tree;

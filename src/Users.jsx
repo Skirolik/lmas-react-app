@@ -39,17 +39,27 @@ const Users = () => {
       <Box
         sx={{
           // paddingTop: theme.spacing.sm,
-          marginBottom: "5px",
-          // borderTop: `${rem(1)} solid ${
-          //   theme.colorScheme === "dark"
-          //     ? theme.colors.dark[4]
-          //     : theme.colors.gray[2]
-          // }`,
+          marginLeft: "6px",
+          marginBottom: "6px",
+          marginTop: "4px",
+          borderRadius: theme.radius.md,
+          width: "95%",
+          padding: theme.spacing.md,
+          borderTop: `${rem(2)} solid ${
+            theme.colorScheme === "dark"
+              ? theme.colors.dark[4]
+              : theme.colors.gray[2]
+          }`,
+          borderBottom: `${rem(2)} solid ${
+            theme.colorScheme === "dark"
+              ? theme.colors.dark[4]
+              : theme.colors.gray[2]
+          }`,
           "&:hover": {
             backgroundColor:
               theme.colorScheme === "dark"
                 ? theme.colors.violet[4]
-                : theme.colors.blue[2],
+                : theme.colors.gray[2],
           },
         }}
       >

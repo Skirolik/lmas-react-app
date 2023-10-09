@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 // import axios from "axios";
 import { useMantineTheme } from "@mantine/core";
-import Calender from "./components/Calender";
+import Calendar from "./components/Calendar";
 
 const CalendarTab = () => {
   const theme = useMantineTheme();
@@ -57,7 +57,7 @@ const CalendarTab = () => {
     y: Number(row[13]),
   }));
 
-  return <Calender data={transformerData} />;
+  return <Calendar data={transformerData} />;
 };
 
 export default CalendarTab;

@@ -1,5 +1,6 @@
 import React from "react";
 import ComingSoonPage from "./ComingSoon";
+import Binary_tree from "./components/BinaryTree";
 
 const SmartProtection = () => {
   const popupContent = {
@@ -14,12 +15,13 @@ const SmartProtection = () => {
     ],
   };
   return (
-    <ComingSoonPage
-      title={popupContent.title}
-      paragraph={popupContent.paragraph}
-      bulletPoints={popupContent.bulletPoints}
-      subject="Smart Protection"
-    />
+    <Binary_tree />
+    // <ComingSoonPage
+    //   title={popupContent.title}
+    //   paragraph={popupContent.paragraph}
+    //   bulletPoints={popupContent.bulletPoints}
+    //   subject="Smart Protection"
+    // />
   );
 };
 

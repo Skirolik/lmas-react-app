@@ -13,7 +13,7 @@ const Globe = () => {
   const colorTexture2 = useTexture("../src/assets/2k_earth_clouds.jpg");
 
   return (
-    <Suspense fallback="../src/assets/Manav Logo 2021.png">
+    <Suspense fallback="../src/assets/ManavLogo2021.png">
       <PerspectiveCamera makeDefault position={[0, 1, 2.2]} />
       <ambientLight color={0xffffff} intensity={0.4} castShadow={true} />
       <pointLight color="#f6f3ea" position={[10, 1, -2]} intensity={2} />
