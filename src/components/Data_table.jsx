@@ -10,6 +10,7 @@ import {
 } from "@mantine/core";
 
 const Data_table = ({ data }) => {
+  console.log("inventory", data);
   const theme = useMantineTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 8;

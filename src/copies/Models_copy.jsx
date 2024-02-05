@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  Popover,
   Button,
   Input,
   Avatar,
@@ -9,11 +10,13 @@ import {
   useMantineTheme,
   Group,
   Modal,
+  Text,
+  CardSection,
   Tooltip,
+  Indicator,
 } from "@mantine/core";
-import AssignmentModal from "./kanban_components/AssignmentModal";
-import Delete_confirmation from "./kanban_components/Delete_confirmation";
 
+import { Calendar } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 
@@ -23,12 +26,8 @@ import { CircleCheck, AlertCircle } from "tabler-icons-react";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import axios from "axios";
 
-///Kanban dragable items
-
 const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   const theme = useMantineTheme();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
   const [{ isDragging }, drag] = useDrag({
     type: "TASK",
     item: { id: task.id, index },
@@ -36,14 +35,8 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
       isDragging: monitor.isDragging(),
     }),
   });
-
   const handleDelete = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirmation = () => {
     deleteTask(task.id);
-    setDeleteModalOpen(false);
   };
 
   const getInitials = (name) => {
@@ -74,7 +67,6 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
         //     ? theme.colors.gray[6]
         //     : theme.colors.indigo[0],
         borderRadius: 4,
-        marginTop: 10,
         opacity: isDragging ? 0.5 : 1,
       }}
     >
@@ -116,23 +108,14 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
 
           {/* Show delete button only in the "Finished" column */}
           {task.status === "finished" && (
-            <>
-              <Button
-                variant="gradient"
-                radius="xl"
-                style={{ marginTop: 8 }}
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-              <Delete_confirmation
-                isOpen={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                onConfirm={handleDeleteConfirmation}
-                taskTitle={task.title}
-                tasks={task}
-              />
-            </>
+            <Button
+              variant="gradient"
+              radius="xl"
+              style={{ marginTop: 8 }}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
           )}
         </Card>
       </div>
@@ -140,7 +123,6 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   );
 };
 
-//Kanban Columns
 const DroppableColumn = ({
   status,
   tasks,
@@ -206,8 +188,6 @@ const DroppableColumn = ({
   );
 };
 
-//Main Function
-
 const Models = () => {
   const theme = useMantineTheme();
   const [data, setData] = useState([]);
@@ -230,24 +210,87 @@ const Models = () => {
   ]);
 
   const [extractedIds, setExtractedIds] = useState([]);
-  const [assignmentModalOpened, setAssignmentModalOpened] = useState(false);
-  const [unassignedTasks, setUnassignedTasks] = useState([]);
-  const [assignedValues, setAssignedValues] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newAssigned, setNewAssigned] = useState("");
-  const [newDate, setNewDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [newStatus, setNewStatus] = useState("tasks");
+  const checkPit = () => {
+    console.log("pit check clicked");
+    axios
+      .get("http://localhost:3000/api/list")
+      .then((response) => {
+        const listdata = response.data;
+        console.log("we get list", listdata);
+        axios.get("http://0.0.0.0:3000/api/data").then((dataResponse) => {
+          const data = dataResponse.data;
+          console.log("Maintenance Table", data);
 
-  //Get Values from Kanban Mysql Table
+          const datatitle = listdata.map((entry) => entry.title);
+          console.log("list data", datatitle);
+
+          const newDataEntries = data.filter(
+            (entry) => !datatitle.includes(entry.title)
+          );
+          console.log("data check", newDataEntries);
+
+          const currentDate = new Date();
+
+          console.log("Today data", currentDate);
+          const newTasks = newDataEntries
+            .filter((entry) => {
+              const nextCollectionDate = new Date(entry.next_collection);
+              const dateOnly = nextCollectionDate.toISOString().split("T")[0];
+              console.log(entry.next_collection);
+              console.log("date collection", dateOnly);
+              return nextCollectionDate <= currentDate;
+            })
+            .map((entry) => {
+              const nextCollectionDate = new Date(entry.next_collection);
+              const dateOnly = nextCollectionDate.toISOString().split("T")[0]; // Declare dateOnly here as well
+              return {
+                id: entry.id,
+                title: entry.title,
+                description: entry.description,
+                assigned: "NA",
+                date: dateOnly, // Use the dateOnly variable here
+                status: "tasks",
+              };
+            });
+
+          // Post new tasks and update the database
+          newTasks.forEach((newTask) => {
+            axios
+              .post("http://localhost:3000/api/tasks", newTask)
+              .then((response) => {
+                console.log("Task added to the database!");
+                // Now update the local state with the new task
+                setTasks([...tasks, response.data]);
+              })
+              .catch((error) => {
+                console.error("Error adding task: ", error);
+              });
+          });
+          notifications.show({
+            title: "Success !!",
+            message:
+              "Just view or Download the report. Contact us for further clarification",
+            color: "teal",
+            icon: <CircleCheck size={24} color="white" />,
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching tasks: ", error);
+        notifications.show({
+          title: "Request Failed",
+          message:
+            "An Error has occured , try again if not please contact us by clicking on contact us page",
+          color: "red",
+          icon: <AlertCircle size={24} color="black" />,
+        });
+      });
+  };
 
   const fetchData = () => {
     console.log("fetch2");
     axios
-      .get("http://192.168.10.251:3000/api/list")
+      .get("http://localhost:3000/api/list")
       .then((response) => {
         setTasks(response.data);
       })
@@ -261,7 +304,12 @@ const Models = () => {
     fetchData();
   }, []);
 
-  //Add task to database
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newAssigned, setNewAssigned] = useState("");
+  const [newDate, setNewDate] = useState(null);
+  const [newStatus, setNewStatus] = useState("tasks");
+
   const addTask = () => {
     if (newTaskTitle.trim() !== "") {
       const newTask = {
@@ -272,10 +320,8 @@ const Models = () => {
         status: newStatus,
       };
 
-      console.log("add task", newTask);
-
       axios
-        .post("http://192.168.10.251:3000/api/tasks", newTask)
+        .post("http://localhost:3000/api/tasks", newTask)
         .then((response) => {
           console.log("Task added to the database!");
           // Now update the local state with the new task
@@ -303,7 +349,7 @@ const Models = () => {
       });
 
       axios
-        .get("http://192.168.10.251:3000/api/data")
+        .get("http://0.0.0.0:3000/api/data")
         .then((response) => {
           setData(response.data);
         })
@@ -319,11 +365,9 @@ const Models = () => {
         });
     }
   };
-
-  //Deleting Tasks
   const deleteTask = (taskID) => {
     axios
-      .delete(`http://192.168.10.251:3000/api/tasks/${taskID}`)
+      .delete(`http://localhost:3000/api/tasks/${taskID}`)
       .then((response) => {
         console.log("Task deleted from the database!");
         // Update the local state to remove the deleted task
@@ -347,7 +391,7 @@ const Models = () => {
       icon: <CircleCheck size={24} color="white" />,
     });
   };
-  // Moving Tasks
+
   const moveTask = (taskID, newStatus) => {
     const updatedTasks = tasks.map((task) =>
       task.id === taskID ? { ...task, status: newStatus } : task
@@ -355,9 +399,7 @@ const Models = () => {
     setTasks(updatedTasks);
     // Send a PUT or PATCH request to the backend to update the task status in the database
     axios
-      .put(`http://192.168.10.251:3000/api/tasks/${taskID}`, {
-        status: newStatus,
-      })
+      .put(`http://localhost:3000/api/tasks/${taskID}`, { status: newStatus })
       .then((response) => {
         console.log("Task status updated in the database!");
         // Update the local state to reflect the new status of the task
@@ -379,40 +421,23 @@ const Models = () => {
       });
   };
 
-  const handleOpenAssignmentModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseAssignmentModal = () => {
-    setIsModalOpen(false);
-  };
-
-  // const handleDelete = (taskId) => {
-  //   // Open the DeleteConfirmationModal and pass tasks as a prop
-  //   openDeleteConfirmationModal(taskId, tasks);
-  // };
-
   return (
     <div style={{ gap: 20, justifyContent: "center" }}>
       <div style={{ marginTop: 20, marginBottom: 50 }}>
         <Group>
-          <Button onClick={open} radius="xl" variant="gradient">
-            Add Task
-          </Button>
-
           <Button
-            onClick={handleOpenAssignmentModal}
+            onClick={checkPit}
+            mr="xl"
             radius="xl"
             variant="gradient"
+            gradient={{ from: "teal", to: "lime", deg: 105 }}
           >
-            Inventory Task
+            Update Tasks
+          </Button>
+          <Button onClick={open} radius="xl" variant="gradient">
+            Instructions
           </Button>
         </Group>
-
-        <AssignmentModal
-          assignmentModalOpenend={isModalOpen}
-          onClose={handleCloseAssignmentModal}
-        />
 
         <Modal
           opened={opened}

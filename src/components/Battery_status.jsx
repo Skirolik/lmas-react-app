@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 
 import "react-circular-progressbar/dist/styles.css";
-import { useMantineTheme } from "@mantine/core";
+import { useMantineTheme, Text } from "@mantine/core";
 
-const Radial_bar = ({ data, color, color2 }) => {
+const Radial_bar = ({ data, color, color2, name }) => {
   const theme = useMantineTheme();
   // console.log("sData:", data);
 
@@ -43,7 +43,17 @@ const Radial_bar = ({ data, color, color2 }) => {
   // console.log("hi", totalCount);
 
   return (
-    <div style={{ width: "50%", height: "50%", position: "relative" }}>
+    <div
+      style={{
+        width: "50%",
+        height: "50%",
+        position: "relative",
+        padding: "10px",
+      }}
+    >
+      <Text ta="center" td="underline" mb="sm" fw="800" size="xl">
+        {name}
+      </Text>
       <CircularProgressbar
         value={totalCount}
         text={totalCount}

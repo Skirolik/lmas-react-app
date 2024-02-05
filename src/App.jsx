@@ -16,6 +16,7 @@ import {
   Aside,
   Footer,
   NavLink,
+  ScrollArea,
 } from "@mantine/core";
 import { IconSun, IconMoonStars } from "@tabler/icons-react";
 import { createStyles, useMantineTheme } from "@mantine/core";
@@ -40,11 +41,20 @@ import LogoutPage from "./Logout";
 import ResetPasswordPage from "./ResetPassword";
 import EmailConfirmation from "./components/EmailConfirmation";
 import Submit_success from "./Submit_success";
-import Fault_info from "./Fault_info";
-import Fault_detection from "./Fault_detection";
-import Fault_managment from "./Fault_managment";
+import Lmas from "./Lmas";
 
-import Calendar_tab from "./Calendar_tab";
+//Layout for each repeter
+import Repeter_1 from "./Repeter_1";
+import Repeter_2 from "./repeters/Repeter_2";
+import Repeter_3 from "./repeters/Repeter_3";
+import Repeter_4 from "./repeters/Repeter_4";
+
+//Maintenance Pages
+import Board from "./maintenance/Board";
+import Inventory from "./maintenance/Inventory";
+import Summary from "./maintenance/Summary";
+import Error_issues from "./maintenance/Error_issues";
+
 import smart_earthpit from "./smart_earthpit";
 import smart_protection from "./smart_protection";
 import Settings from "./Settings";
@@ -53,15 +63,14 @@ import Contact from "./Contact";
 import Rectractable from "./Rectractable";
 import {
   IconHome2,
-  IconCalendar,
   IconActivityHeartbeat,
   IconPackage,
-  IconLayoutKanban,
-  IconAddressBook,
+  IconHierarchy3,
+  IconGeometry,
+  IconAdjustmentsCog,
 } from "@tabler/icons-react";
 
 import Maintenance from "./Maintenance";
-import { IconGauge, IconFingerprint } from "@tabler/icons-react";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(true);
@@ -97,13 +106,7 @@ function App() {
 
   const views = [
     { path: "/", name: "Home", component: Home, logo: <IconHome2 /> },
-    {
-      path: "/calender_tab",
-      name: "Calendar",
-      component: Calendar_tab,
-      exact: true,
-      logo: <IconCalendar />,
-    },
+
     {
       path: "/smart_earthpit",
       name: "Smart Earthing",
@@ -120,30 +123,24 @@ function App() {
     },
     {
       path: "/Rectractable",
-      name: "Layout",
+      name: "Plant Overview",
       component: Rectractable,
       exact: true,
-      logo: <IconCalendar />,
+      logo: <IconHierarchy3 />,
     },
+
     {
-      path: "/maintanance",
-      name: "Maintance",
-      component: Maintenance,
+      path: "/Lmas",
+      name: "Lmas",
+      component: Lmas,
       exact: true,
-      logo: <IconLayoutKanban />,
-    },
-    {
-      path: "/contact",
-      name: "Contact",
-      component: Contact,
-      exact: true,
-      logo: <IconAddressBook />,
+      logo: <IconHierarchy3 />,
     },
   ];
 
   // mobile nav
   const [opened, setOpened] = useState(false);
-  const defaultColorScheme = "light";
+  const defaultColorScheme = "dark";
   // console.log(defaultColorScheme);
   const [colorScheme, setColorScheme] = useState(defaultColorScheme);
 
@@ -157,7 +154,8 @@ function App() {
     NavLink: {
       display: "block",
       width: "100%",
-      padding: theme.spacing.sm,
+
+      padding: theme.spacing.xs,
       marginTop: "8px",
       borderRadius: theme.radius.md,
       color: colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
@@ -186,6 +184,8 @@ function App() {
       marginTop: "4px",
       borderRadius: theme.radius.md,
       color: colorScheme === "dark" ? "white" : "black",
+      backgroundColor:
+        colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[2],
       textDecoration: "none",
       "&:hover": {
         backgroundColor:
@@ -226,7 +226,7 @@ function App() {
         navbar={
           loggedIn && (
             <Navbar
-              width={{ sm: 200 }}
+              width={{ sm: 195 }}
               padding="xs"
               hidden={!opened}
               hiddenBreakpoint="sm"
@@ -247,30 +247,91 @@ function App() {
                     </Group>
                   </Link>
                 ))}
-              </Navbar.Section>
-              <Navbar.Section grow mt="md">
                 <NavLink
-                  label={<Text className={classes.Largedata}>Fault</Text>}
-                  icon={<IconFingerprint stroke={2} />}
+                  label={<Text className={classes.Largedata}>Upkeep</Text>}
+                  icon={<IconAdjustmentsCog stroke={2} />}
+                  childrenOffset={25}
+                  defaultClosed
+                  className={` ${classes.NestedLink}   `}
+                  mb="xs"
+                >
+                  <Link
+                    to="/maintenance/Summary"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Summary</Text>
+                  </Link>
+
+                  <Link
+                    to="/maintenance/Board"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Board</Text>
+                  </Link>
+                  <Link
+                    to="/maintenance/Inventory"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Inventory</Text>
+                  </Link>
+                  <Link
+                    to="/maintenance/Error_issues"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Error History</Text>
+                  </Link>
+                  <Link
+                    to="/maintanance"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">EarthPit Data</Text>
+                  </Link>
+                </NavLink>
+              </Navbar.Section>
+              <Navbar.Section grow component={ScrollArea}>
+                <NavLink
+                  label={<Text className={classes.Largedata}>Layout</Text>}
+                  icon={<IconGeometry stroke={2} />}
                   childrenOffset={25}
                   defaultClosed
                   className={` ${classes.NestedLink} ${classes.NestedLinkActive} ${classes.LargeFont} `}
                 >
                   <Link
-                    to="/fault_info"
+                    to="/repeter_1"
                     className={`${classes.NavLink} ${classes.NavLinkActive}`}
                   >
                     {" "}
-                    <Text fz="lg">Fault Info</Text>
+                    <Text fz="lg">Repeter-1</Text>
                   </Link>
                   <Link
-                    to="/fault_detection"
+                    to="/repeters/Repeter_2"
                     className={`${classes.NavLink} ${classes.NavLinkActive}`}
                   >
-                    <Text fz="lg">Fault Detection</Text>
+                    {" "}
+                    <Text fz="lg">Repeter-2</Text>
+                  </Link>
+                  <Link
+                    to="/repeters/Repeter_3"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Repeter-3</Text>
+                  </Link>
+                  <Link
+                    to="/repeters/Repeter_4"
+                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                  >
+                    {" "}
+                    <Text fz="lg">Repeter-4</Text>
                   </Link>
                 </NavLink>
               </Navbar.Section>
+
               <Navbar.Section>
                 <Divider size="lg" mb="xl" />
                 <Users />
@@ -388,8 +449,19 @@ function App() {
           {/* Private routes */}
           {loggedIn && (
             <>
-              <Route path="/fault_info" element={<Fault_info />} />
-              <Route path="/fault_detection" element={<Fault_detection />} />
+              <Route path="/repeter_1" element={<Repeter_1 />} />
+              <Route path="/repeters/Repeter_2" element={<Repeter_2 />} />
+              <Route path="/repeters/Repeter_3" element={<Repeter_3 />} />
+              <Route path="/repeters/Repeter_4" element={<Repeter_4 />} />
+              <Route path="/maintenance/Board" element={<Board />} />
+              <Route path="/maintenance/Inventory" element={<Inventory />} />
+              <Route path="/maintenance/Summary" element={<Summary />} />
+              <Route
+                path="/maintenance/Error_issues"
+                element={<Error_issues />}
+              />
+              <Route path="/maintanance" element={<Maintenance />} />
+
               <Route path="/settings" element={<Settings />} />
               {views.map((view, index) => (
                 <Route

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  Popover,
   Button,
   Input,
   Avatar,
@@ -9,11 +10,14 @@ import {
   useMantineTheme,
   Group,
   Modal,
+  Text,
+  CardSection,
   Tooltip,
+  Indicator,
+  Table,
 } from "@mantine/core";
-import AssignmentModal from "./kanban_components/AssignmentModal";
-import Delete_confirmation from "./kanban_components/Delete_confirmation";
 
+import { Calendar } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 
@@ -23,12 +27,8 @@ import { CircleCheck, AlertCircle } from "tabler-icons-react";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import axios from "axios";
 
-///Kanban dragable items
-
 const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   const theme = useMantineTheme();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
   const [{ isDragging }, drag] = useDrag({
     type: "TASK",
     item: { id: task.id, index },
@@ -36,14 +36,8 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
       isDragging: monitor.isDragging(),
     }),
   });
-
   const handleDelete = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirmation = () => {
     deleteTask(task.id);
-    setDeleteModalOpen(false);
   };
 
   const getInitials = (name) => {
@@ -116,23 +110,14 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
 
           {/* Show delete button only in the "Finished" column */}
           {task.status === "finished" && (
-            <>
-              <Button
-                variant="gradient"
-                radius="xl"
-                style={{ marginTop: 8 }}
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-              <Delete_confirmation
-                isOpen={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                onConfirm={handleDeleteConfirmation}
-                taskTitle={task.title}
-                tasks={task}
-              />
-            </>
+            <Button
+              variant="gradient"
+              radius="xl"
+              style={{ marginTop: 8 }}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
           )}
         </Card>
       </div>
@@ -140,7 +125,6 @@ const DraggableTask = ({ task, index, moveTask, deleteTask }) => {
   );
 };
 
-//Kanban Columns
 const DroppableColumn = ({
   status,
   tasks,
@@ -206,7 +190,63 @@ const DroppableColumn = ({
   );
 };
 
-//Main Function
+const AssignmentModal = ({
+  assignmentModalOpenend,
+  closeAssignmentModal,
+  unassignedTasks,
+  assignedValues,
+  handleAssigneeChange,
+  handleAssignTasksSubmit,
+}) => (
+  <Modal
+    opened={assignmentModalOpenend}
+    onClose={closeAssignmentModal}
+    // fullScreen
+    size="70%"
+    title="Add From Inventory"
+  >
+    <Card>
+      <Table>
+        <thead>
+          <tr>
+            <th>Device Name</th>
+            <th>Device Type</th>
+            <th> Next Maintenance date</th>
+
+            <th>Assignee</th>
+          </tr>
+        </thead>
+        <tbody>
+          {unassignedTasks.map((task) => (
+            <tr key={task.id}>
+              <td>{task.device_name}</td>
+              <td>{task.device_type}</td>
+              <td>
+                {new Date(task.next_maintenance_date).toLocaleDateString()}
+              </td>
+              <td>
+                <Input
+                  value={assignedValues[task.id] || ""}
+                  onChange={(e) =>
+                    handleAssigneeChange(task.id, e.target.value)
+                  }
+                ></Input>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <Button
+        onClick={handleAssignTasksSubmit}
+        radius="xl"
+        mt="xl"
+        variant="gradient"
+      >
+        Assign Tasks
+      </Button>
+    </Card>
+  </Modal>
+);
 
 const Models = () => {
   const theme = useMantineTheme();
@@ -234,20 +274,49 @@ const Models = () => {
   const [unassignedTasks, setUnassignedTasks] = useState([]);
   const [assignedValues, setAssignedValues] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newAssigned, setNewAssigned] = useState("");
-  const [newDate, setNewDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [newStatus, setNewStatus] = useState("tasks");
 
-  //Get Values from Kanban Mysql Table
+  const fetchUnassignedTasks = async () => {
+    try {
+      const inventoryResponse = await axios.get(
+        "http://127.0.0.1:3000/api/inventory"
+      );
+      console.log("ionv", inventoryResponse);
+      const inventoryTasks = inventoryResponse.data.filter((task) => {
+        const nextMaintenanceDate = new Date(task.next_maintenance_date);
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+
+        return (
+          nextMaintenanceDate >= new Date() && nextMaintenanceDate <= nextWeek
+        );
+      });
+
+      const dataResponse = await axios.get("http://0.0.0.0:3000/api/list");
+      const exisistingTasksIds = dataResponse.data.map((task) => task.title);
+
+      const unassignedTasks = inventoryTasks
+        .map((task) => ({
+          ...task,
+          next_maintenance_date: new Date(task.next_maintenance_date)
+            .toISOString()
+            .split("T")[0],
+        }))
+        .filter((task) => !exisistingTasksIds.includes(task.device_name));
+      setUnassignedTasks(unassignedTasks);
+      console.log("inventory data", unassignedTasks);
+    } catch (error) {
+      console.error("Error fetching unassigned tasks: ", error);
+    }
+  };
+
+  // useEffect(() => {
+  //   fetchUnassignedTasks();
+  // }, []);
 
   const fetchData = () => {
     console.log("fetch2");
     axios
-      .get("http://192.168.10.251:3000/api/list")
+      .get("http://localhost:3000/api/list")
       .then((response) => {
         setTasks(response.data);
       })
@@ -261,7 +330,18 @@ const Models = () => {
     fetchData();
   }, []);
 
-  //Add task to database
+  //Checking data from inventory
+
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newAssigned, setNewAssigned] = useState("");
+  const [newDate, setNewDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [newStatus, setNewStatus] = useState("tasks");
+
+  //Inventory Assignment
+
   const addTask = () => {
     if (newTaskTitle.trim() !== "") {
       const newTask = {
@@ -275,7 +355,7 @@ const Models = () => {
       console.log("add task", newTask);
 
       axios
-        .post("http://192.168.10.251:3000/api/tasks", newTask)
+        .post("http://localhost:3000/api/tasks", newTask)
         .then((response) => {
           console.log("Task added to the database!");
           // Now update the local state with the new task
@@ -303,7 +383,7 @@ const Models = () => {
       });
 
       axios
-        .get("http://192.168.10.251:3000/api/data")
+        .get("http://0.0.0.0:3000/api/data")
         .then((response) => {
           setData(response.data);
         })
@@ -319,11 +399,9 @@ const Models = () => {
         });
     }
   };
-
-  //Deleting Tasks
   const deleteTask = (taskID) => {
     axios
-      .delete(`http://192.168.10.251:3000/api/tasks/${taskID}`)
+      .delete(`http://localhost:3000/api/tasks/${taskID}`)
       .then((response) => {
         console.log("Task deleted from the database!");
         // Update the local state to remove the deleted task
@@ -347,7 +425,7 @@ const Models = () => {
       icon: <CircleCheck size={24} color="white" />,
     });
   };
-  // Moving Tasks
+
   const moveTask = (taskID, newStatus) => {
     const updatedTasks = tasks.map((task) =>
       task.id === taskID ? { ...task, status: newStatus } : task
@@ -355,9 +433,7 @@ const Models = () => {
     setTasks(updatedTasks);
     // Send a PUT or PATCH request to the backend to update the task status in the database
     axios
-      .put(`http://192.168.10.251:3000/api/tasks/${taskID}`, {
-        status: newStatus,
-      })
+      .put(`http://localhost:3000/api/tasks/${taskID}`, { status: newStatus })
       .then((response) => {
         console.log("Task status updated in the database!");
         // Update the local state to reflect the new status of the task
@@ -380,6 +456,7 @@ const Models = () => {
   };
 
   const handleOpenAssignmentModal = () => {
+    fetchUnassignedTasks();
     setIsModalOpen(true);
   };
 
@@ -387,10 +464,42 @@ const Models = () => {
     setIsModalOpen(false);
   };
 
-  // const handleDelete = (taskId) => {
-  //   // Open the DeleteConfirmationModal and pass tasks as a prop
-  //   openDeleteConfirmationModal(taskId, tasks);
-  // };
+  const handleAssigneeChange = (taskId, assignee) => {
+    // Update the assignedValues state
+    setAssignedValues((prevValues) => ({
+      ...prevValues,
+      [taskId]: assignee,
+    }));
+  };
+
+  const handleAssignTasksSubmit = () => {
+    console.log("Hi shahin");
+
+    const assignedTasks = unassignedTasks.map((task) => ({
+      title: task.device_name,
+      description: task.device_type,
+      assigned: assignedValues[task.id],
+      date: task.next_maintenance_date,
+      status: "tasks",
+    }));
+
+    // console.log("task assigned", assignedTasks);
+    handleAssigning(assignedTasks);
+  };
+
+  const handleAssigning = (assignedTasks) => {
+    console.log("tasd", assignedTasks);
+
+    axios
+      .post("http://localhost:3000/api/tasks/bulk-insert", assignedTasks)
+      .then((response) => {
+        console.log("Tasks added to Kanban");
+      })
+      .catch((error) => {
+        console.error("Error adding tasks", error);
+      });
+    handleCloseAssignmentModal();
+  };
 
   return (
     <div style={{ gap: 20, justifyContent: "center" }}>
@@ -411,8 +520,30 @@ const Models = () => {
 
         <AssignmentModal
           assignmentModalOpenend={isModalOpen}
-          onClose={handleCloseAssignmentModal}
+          closeAssignmentModal={handleCloseAssignmentModal}
+          unassignedTasks={unassignedTasks}
+          assignedValues={assignedValues}
+          handleAssigneeChange={handleAssigneeChange}
+          handleAssignTasksSubmit={handleAssignTasksSubmit}
         />
+
+        {/* <Modal
+          opened={isModalOpen}
+          onClose={handleCloseAssignmentModal}
+          centered
+        >
+          <Card>
+            {unassignedTasks.map((task) => (
+              <div key={task.id}>
+               
+                <p>{task.device_name}</p>
+                
+              </div>
+            ))}
+
+           
+          </Card>
+        </Modal> */}
 
         <Modal
           opened={opened}

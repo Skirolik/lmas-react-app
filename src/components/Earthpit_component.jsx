@@ -246,15 +246,20 @@ const Earthpit_component = ({ setShowEarthpitSuccess, soilres }) => {
                 </Text>
 
                 <Spoiler showLabel="Show more" hideLabel="Hide">
-                  From Bulbapedia: Bulbasaur is a small, quadrupedal Pokémon
-                  that has blue-green skin with darker patches. It has red eyes
-                  with white pupils, pointed, ear-like structures on top of its
-                  head, and a short, blunt snout with a wide mouth. A pair of
-                  small, pointed teeth are visible in the upper jaw when its
-                  mouth is open. Each of its thick legs ends with three sharp
-                  claws. On Bulbasaur's back is a green plant bulb, which is
-                  grown from a seed planted there at birth. The bulb also
-                  conceals two
+                  Lorem ipsum odor amet, consectetuer adipiscing elit.
+                  Adipiscing nulla leo commodo egestas facilisi placerat
+                  lobortis massa. Ornare viverra quam leo ex penatibus taciti.
+                  Taciti vulputate fames metus magnis mi natoque. Rhoncus
+                  scelerisque vel lacus eleifend volutpat leo. Adipiscing arcu
+                  eros ultrices at ipsum. Ut a nascetur, vulputate blandit sem
+                  magnis malesuada. Praesent inceptos consequat imperdiet lectus
+                  mus. Est vulputate sed vulputate ut mauris venenatis morbi.
+                  Accumsan tellus tempor maximus efficitur sagittis faucibus.
+                  Tempus dignissim hac magna, tempor hendrerit pharetra.
+                  Phasellus mattis dignissim sollicitudin turpis suscipit a.
+                  Tincidunt finibus consequat habitasse porttitor vel nam.
+                  Accumsan torquent lorem vitae interdum sociosqu aliquam
+                  inceptos adipiscing lacinia.
                 </Spoiler>
               </Card>
             </Grid.Col>

@@ -184,8 +184,8 @@ const DeviceEntries = () => {
     <div>
       <h1>Saved Data</h1>
       <Grid>
-        <Grid.Col md={2} lg={1}></Grid.Col>
-        <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 1 }}>
+        <Grid.Col md={1} lg={2}></Grid.Col>
+        <Grid.Col xs={12} sm={8} md={4} lg={4} style={{ flex: 1 }}>
           <div>
             <Table
               striped
@@ -281,7 +281,7 @@ const DeviceEntries = () => {
             {data.length === 0 && <Text>No data available.</Text>}
           </div>
         </Grid.Col>
-        <Grid.Col xs={12} sm={6} md={6} lg={4} style={{ flex: 2 }}>
+        <Grid.Col xs={12} sm={8} md={10} lg={4}>
           <Card style={{ height: "100%", overflow: "hidden" }}>
             <LazyLoad>
               <Map
@@ -343,6 +343,7 @@ const DeviceEntries = () => {
             </LazyLoad>
           </Card>
         </Grid.Col>
+        <Grid.Col md={2} lg={2}></Grid.Col>
       </Grid>
       {selectedEntry && (
         <Modal

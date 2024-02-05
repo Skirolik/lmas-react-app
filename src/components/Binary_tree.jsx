@@ -1,155 +1,251 @@
 import React, { useState, useEffect } from "react";
-import ReactFlow, { Background } from "react-flow-renderer";
-import { Input } from "@mantine/core";
-import initaialNodes from "./nodes.jsx";
+import ReactFlow, { Background, MiniMap, Controls } from "react-flow-renderer";
+import initialNodes from "./nodes.jsx";
 import initialEdges from "./edges.jsx";
 import CustomNode from "./CustomNode";
-const nodeTypes = { customNode: CustomNode };
+import NewNode from "./NewNode.jsx";
+import { useMantineTheme, Button, Grid } from "@mantine/core";
+import useErrorValues from "./useErrorValues.jsx";
+import SlaveTable from "./SlaveTable.jsx";
+import "./animation.css";
+import { notifications } from "@mantine/notifications";
+import { CircleCheck, AlertCircle } from "tabler-icons-react";
+import axios from "axios";
 
-const Binary_tree = () => {
-  const [nodes, setNodes] = useState(initaialNodes);
-  const [edges, setEdges] = useState(initialEdges);
-  const [newValue, setNewValue] = useState("");
-  const [userInputId, setUserInputId] = useState("");
-  const [updateCount, setUpdateCount] = useState(0);
-  const [useredgeId, setUseredgeId] = useState("");
-  const [updateval, setUpdateval] = useState(0);
-  const [edgeval, setEdgeval] = useState("");
+const applyErrorStyles = (nodes, uniqueErrorIds, setNodes) => {
+  console.log("value i get ", uniqueErrorIds);
 
-  console.log("edges", edges);
+  console.log(
+    "All Node IDs:",
+    nodes.map((node) => node.id)
+  );
+  // You can also filter or transform the IDs as needed:
+  const slaveNodeIds = nodes
+    .filter((node) => node.id.startsWith("SB-"))
+    .map((node) => node.id);
+  console.log("Slave Node IDs:", slaveNodeIds);
+  const matchingNodeIds = slaveNodeIds.filter((nodeId) =>
+    uniqueErrorIds.includes(nodeId)
+  );
 
-  const handleNodeClick = (event, node) => {
-    // Toggle the background color
-    const newBackgroundColor = node.data.isBlue ? "white" : "pink";
-    // console.log(newBackgroundColor);
-    // console.log("style", node.style.backgroundColor);
-    // console.log("val", node.value);
+  console.log("matching nodes", matchingNodeIds);
+  notifications.show({
+    title: "Request Failed",
+    message: `An Error has occured in slave ${uniqueErrorIds}`,
+    color: "red",
+    icon: <AlertCircle size={24} color="black" />,
+  });
 
-    if (node.id === "A-2") {
-      node.style.backgroundColor = newBackgroundColor;
-    }
-
-    // Update the node data to reflect the color change
-    setNodes((prevNodes) =>
-      prevNodes.map((n) =>
-        n.id === "A-2"
-          ? {
-              ...n,
-              data: {
-                ...n.data,
-                style: {
-                  ...n.data.style,
-                  backgroundColor: newBackgroundColor,
-                },
-                isBlue: !n.data.isBlue,
-              },
-            }
-          : n
-      )
-    );
-    console.log(nodes);
-  };
-  useEffect(() => {
-    // Check the node values and update background colors
-    const updatedNodes = nodes.map((node) => {
-      const numericValue = parseFloat(node.value);
-      console.log(numericValue);
-
-      if (node.data && numericValue > 5) {
-        // console.log("hi");
-        // console.log("bg", node.style.backgroundColor);
-
-        // Update background color and text color
-        node.style.backgroundColor = "pink";
-        node.style.color = "red";
-
-        return {
-          ...node,
-          data: {
-            ...node.data,
+  setNodes((prevNodes) =>
+    prevNodes.map((node) =>
+      matchingNodeIds.includes(node.id)
+        ? {
+            ...node,
             style: {
               ...node.style,
-              backgroundColor: "pink",
+              backgroundColor: "red", // Apply error color
             },
-          },
-        };
-      } else if (node.id === "A") {
-        // Skip updating background color for the parent node
-        return node;
-      } else {
-        // Reset background color and text color
+          }
+        : node
+    )
+  );
+
+  // Log matching IDs or a message if none found:
+  if (matchingNodeIds.length > 0) {
+    console.log(
+      "Matching Node IDs (Slave Nodes with Errors):",
+      matchingNodeIds
+    );
+  } else {
+    console.log("No matching slave nodes found with errors.");
+  }
+};
+
+const BinaryTree = () => {
+  const theme = useMantineTheme();
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const [showSlaveTable, setShowSlaveTable] = useState(false);
+  const [errorValues, setErrorValues] = useState([]);
+  const [liveErrors, setLiveErrors] = useState([]);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
+  const [mac_id, setMAC] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // const errorTable = ["sl-1", "sl-214", "sl-378"];
+  // const { errorValues } = useErrorValues(errorTable);
+  // console.log("tt", errorValues);
+  // const uniqueErrorIds = Array.from(
+  //   new Set(errorValues.map((error) => error.id))
+  // );
+  // console.log("error ids", uniqueErrorIds);
+
+  const fetchData = async () => {
+    try {
+      // Make a request to fetch last 10 minutes error data
+      const response = await axios.get("http://localhost:3000/api/last_10_min");
+      const last10MinErrors = response.data;
+      console.log("Received 10 min error data:", last10MinErrors);
+
+      // Extract the slave_ids from the error data
+      const errorIds = last10MinErrors.map((error) => error.slave_id);
+      console.log("Extracted errorIds:", errorIds);
+
+      // Extract associated nodes using error.slave_id for styling
+      const uniqueAssociatedNodes = Array.from(
+        new Set(
+          errorIds.map((errorId) => {
+            const slaveId = parseInt(errorId.split("-")[1]);
+            const associatedNodeNumber = Math.ceil(slaveId / 100);
+            return `SB-${associatedNodeNumber}`;
+          })
+        )
+      );
+
+      // Create live error data with the required format
+      const liveErrorData = uniqueAssociatedNodes.map((associatedNode) => {
+        const errorsForNode = errorIds.filter((errorId) => {
+          const slaveId = parseInt(errorId.split("-")[1]);
+          const associatedNodeNumber = Math.ceil(slaveId / 100);
+          return `SB-${associatedNodeNumber}` === associatedNode;
+        });
+
         return {
-          ...node,
-          style: {
-            ...node.style,
-            backgroundColor: "white",
-            color: "black",
-          },
+          id: associatedNode,
+          label: errorsForNode.join(", "),
+          isError: true,
+          timestamp: new Date().getTime(),
         };
-      }
-    });
+      });
 
-    setNodes(updatedNodes);
-    // console.log(nodes);
-  }, [updateCount]);
-
-  const handleUpdateClick = () => {
-    // console.log("new", newValue);
-
-    // Update the value for the specific node specified by userInputId
-    const updatedNodes = nodes.map((node) => {
-      if (node.id === userInputId) {
-        return {
-          ...node,
-          value: newValue,
-        };
-      } else {
-        return node;
-      }
-    });
-
-    setNodes(updatedNodes);
-    setUpdateCount(updateCount + 1);
-    // console.log(nodes);
-  };
-
-  const handleClick = () => {
-    console.log("new", edgeval);
-    console.log("new2", useredgeId);
-
-    const updateEdges = edges.map((edge) => {
-      if (edge.id === useredgeId) {
-        console.log("edgeid", edge.value);
-        console.log("inside if statmenet");
-
-        console.log("stroke color", edge.style.stroke);
-
-        return {
-          ...edge,
-
-          style: {
-            ...edge.style,
-            stroke: "green",
-          },
-          animated: false,
-        };
-      } else {
-        console.log("not in if loop");
-        return edge;
-      }
-    });
-    // setEdges(updateEdges);
-    setEdges(updateEdges);
-    console.log("updated edges", updateEdges);
+      // Set liveErrors and apply styles using the associated nodes
+      setLiveErrors(liveErrorData);
+      applyErrorStyles(nodes, uniqueAssociatedNodes, setNodes);
+    } catch (error) {
+      console.error("Error fetching last 10 minutes error data:", error);
+    }
   };
 
   useEffect(() => {
-    // Use useEffect to simulate a reload when edges change
-    // This will ensure the ReactFlow component re-renders when edges change
-  }, [edges]);
+    fetchData(); // Fetch data only on the first render
+  }, []);
+
+  useEffect(() => {
+    const socket = new WebSocket(`ws://127.0.0.1:2000`);
+
+    socket.onopen = () => {
+      console.log("websocket connection established");
+    };
+
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      console.log("error data", data);
+      const [slaveId, masterValue, slaveValueData] = data;
+
+      if (slaveValueData === "ERROR") {
+        const timestamp = new Date().getTime();
+
+        const errorsWithAssociatedNode = [slaveId].map((error) => {
+          const slaveId = parseInt(error.split("-")[1]);
+          const associatedNodeNumber = Math.ceil(slaveId / 100);
+          return `SB-${associatedNodeNumber}`;
+        });
+
+        const uniqueAssociatedNodes = Array.from(
+          new Set(errorsWithAssociatedNode)
+        );
+
+        const finalErrorValues = uniqueAssociatedNodes.map((associatedNode) => {
+          const errorsForNode = [slaveId];
+          return {
+            id: associatedNode,
+            label: errorsForNode.join(", "),
+            isError: true,
+            timestamp,
+          };
+        });
+
+        // Send the error data to the server using Axios
+        try {
+          await axios.post("http://localhost:3000/api/error-data", {
+            slave_id: slaveId,
+            error_time: new Date(timestamp).toISOString(),
+          });
+        } catch (error) {
+          console.error("Error sending error data to server:", error);
+        }
+
+        setLiveErrors((prevErrors) => [...prevErrors, ...finalErrorValues]);
+
+        const tenMinutesAgo = timestamp - 10 * 60 * 1000;
+
+        setLiveErrors((prevErrors) =>
+          prevErrors.filter((error) => error.timestamp > tenMinutesAgo)
+        );
+
+        if (JSON.stringify(finalErrorValues) !== JSON.stringify(errorValues)) {
+          setErrorValues(finalErrorValues);
+          applyErrorStyles(nodes, uniqueAssociatedNodes, setNodes);
+        }
+      }
+    };
+
+    socket.onclose = () => {
+      console.log("websocket connection closed");
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [nodes, isFirstRender]);
+
+  useEffect(() => {
+    // After the initial render, set isFirstRender to false
+    setIsFirstRender(false);
+  }, []);
+
+  // const handleApplyErrorStyles = () => {
+  //   applyErrorStyles(nodes, uniqueErrorIds, setNodes);
+  // };
+
+  const handleShowSlaveTable = () => {
+    setShowSlaveTable(true);
+  };
+
+  const nodeTypes = {
+    customNode: ({ data }) => (
+      <CustomNode data={data} errorValues={errorValues} />
+    ),
+    newNode: NewNode,
+  };
 
   return (
-    <div style={{ height: "400px", width: "100%" }}>
+    <div style={{ height: "680px", width: "100%" }}>
+      <div>
+        <Grid mb="sm">
+          <Grid.Col md={4} lg={1}></Grid.Col>
+          <Grid.Col md={2} lg={8}></Grid.Col>
+          <Grid.Col md={4} lg={1}>
+            <Button
+              mb="xl"
+              mt="xl"
+              radius="xl"
+              variant="gradient"
+              gradient={{ from: "rgba(255, 153, 153, 1)", to: "red", deg: 324 }}
+              onClick={handleShowSlaveTable}
+            >
+              Force Error
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </div>
+      {showSlaveTable && (
+        <SlaveTable
+          errorValues={liveErrors}
+          onClose={() => setShowSlaveTable(false)}
+        />
+      )}
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -158,42 +254,20 @@ const Binary_tree = () => {
         zoomOnScroll={false}
         zoomOnDoubleClick={false}
         zoomOnPinch={false}
-        onNodeClick={handleNodeClick}
       >
-        <Background />
+        <Background
+          color={
+            theme.colorScheme === "dark"
+              ? theme.colors.dark[9]
+              : theme.colors.gray
+          }
+          variant={"dots"}
+        />
+
+        <Controls />
       </ReactFlow>
-      <div>
-        <input
-          type="text"
-          placeholder="Enter value"
-          value={newValue}
-          onChange={(e) => setNewValue(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter ID"
-          value={userInputId}
-          onChange={(e) => setUserInputId(e.target.value)}
-        />
-        <button onClick={handleUpdateClick}>Update</button>
-      </div>
-      <div>
-        <input
-          type="text"
-          placeholder="Enter value"
-          value={edgeval}
-          onChange={(e) => setEdgeval(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter ID"
-          value={useredgeId}
-          onChange={(e) => setUseredgeId(e.target.value)}
-        />
-        <button onClick={handleClick}>Update</button>
-      </div>
     </div>
   );
 };
 
-export default Binary_tree;
+export default BinaryTree;

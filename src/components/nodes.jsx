@@ -1,87 +1,85 @@
+// nodes.js
 import React from "react";
 import CustomNode from "./CustomNode";
+import NewNode from "./NewNode";
+
+const canvasGrid = {
+  id: "canvasGrid",
+  type: "group",
+  position: { x: 0, y: 0 },
+  style: {
+    width: 800,
+    height: 340,
+    backgroundColor: "rgba(240,240,240,0.25)",
+  },
+};
+
+// First Master Node
+const masterNode1 = {
+  id: "masterNode1",
+  data: { label: "M-1" },
+  position: { x: 180, y: 20 },
+  draggable: false,
+  value: "OFF",
+  style: {
+    width: 100,
+    backgroundColor: "#E7F5FF",
+  },
+};
+
+// Second Master Node
+const masterNode2 = {
+  id: "masterNode2",
+  data: { label: "M-2" },
+  position: { x: 460, y: 20 },
+  draggable: false,
+  value: "OFF",
+  style: {
+    width: 100,
+    backgroundColor: "#ffe8db",
+  },
+};
+
+export const numRepeaters = 8;
+
+// Repeater Nodes
+const repeaterNodes = Array.from({ length: 4 }, (_, index) => ({
+  id: `repeaterNode-${index + 1}`,
+  data: { label: `R- ${index + 1}`, isSlave: false },
+  type: "newNode",
+  position: { x: 20 + index * 200, y: 140 },
+  draggable: false,
+  value: "OFF",
+  style: {
+    width: 60,
+    borderRadius: "10px",
+    color: "black",
+    backgroundColor: "#efe3fc",
+  },
+}));
+
+// Slave Nodes
+const slaveNodes = Array.from({ length: 4 }, (_, index) => ({
+  id: `SB-${index + 1}`,
+  data: { label: `SB-${index + 1}`, isSlave: true },
+  type: "customNode",
+  position: { x: 20 + index * 200, y: 240 },
+  draggable: false,
+  value: "OFF",
+  style: {
+    width: 60,
+
+    color: "black",
+    backgroundColor: "#E7F5FF",
+  },
+}));
 
 const nodes = [
-  {
-    id: "A",
-    type: "group",
-    position: { x: 0, y: 0 },
-    value: "20",
-    style: {
-      width: 400,
-      height: 240,
-      backgroundColor: "rgba(20,240,240,0.25)",
-    },
-  },
-  {
-    id: "A-1",
-
-    data: { label: "Master" },
-    position: { x: 150, y: 80 },
-    parentNode: "A",
-    extent: "parent",
-    draggable: false,
-    value: "2",
-
-    style: {
-      width: 60,
-    },
-  },
-  {
-    id: "A-2",
-    type: "customNode",
-    data: {
-      label: "slave-1",
-    },
-    position: { x: 80, y: 150 },
-    parentNode: "A",
-    extent: "parent",
-    draggable: false,
-    value: "10",
-    style: {
-      width: 60,
-
-      backgroundColor: "white",
-    },
-  },
-  {
-    id: "A-3",
-    data: { label: "slave-2" },
-    position: { x: 220, y: 150 },
-    parentNode: "A",
-    extent: "parent",
-    value: "6",
-    draggable: false,
-    style: {
-      width: 60,
-      backgroundColor: "white",
-    },
-  },
-  {
-    id: "A-4",
-    data: { label: "slave-3" },
-    position: { x: 250, y: 20 },
-    parentNode: "A",
-    extent: "parent",
-    value: "2",
-    draggable: false,
-    style: {
-      width: 60,
-      backgroundColor: "white",
-    },
-  },
-  {
-    id: "A-5",
-    data: { label: "slave-4" },
-    position: { x: 80, y: 20 },
-    parentNode: "A",
-    extent: "parent",
-    value: "2",
-    draggable: false,
-    style: {
-      width: 60,
-      backgroundColor: "white",
-    },
-  },
+  canvasGrid,
+  masterNode1,
+  masterNode2,
+  ...repeaterNodes,
+  ...slaveNodes,
 ];
+
 export default nodes;

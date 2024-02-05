@@ -22,9 +22,6 @@ const Maintenance = () => {
         <Tabs.Tab value="messages" icon={<IconAnalyzeFilled size="0.8rem" />}>
           Data
         </Tabs.Tab>
-        <Tabs.Tab value="settings" icon={<IconBrandTrello size="0.8rem" />}>
-          Timeline
-        </Tabs.Tab>
       </Tabs.List>
 
       <Tabs.Panel value="gallery" pt="xs">
@@ -33,10 +30,6 @@ const Maintenance = () => {
 
       <Tabs.Panel value="messages" pt="xs">
         <DeviceEntries />
-      </Tabs.Panel>
-
-      <Tabs.Panel value="settings" pt="xs">
-        <Timeline_data />
       </Tabs.Panel>
     </Tabs>
   );

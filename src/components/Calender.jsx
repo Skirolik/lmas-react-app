@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ResponsiveCalendar } from "@nivo/calendar";
-import { useMantineTheme, Grid } from "@mantine/core";
+import { useMantineTheme, Grid, Text, Divider } from "@mantine/core";
 
 const Calender = ({ data }) => {
   // console.log("calender", data);
@@ -41,7 +41,10 @@ const Calender = ({ data }) => {
 
   return (
     <div>
-      <h1>Calander</h1>
+      <Text fz="xl" ta="center" fw="bold">
+        History
+      </Text>
+      <Divider />
       <Grid>
         <Grid.Col md={2} lg={1}></Grid.Col>
         <Grid.Col md={2} lg={8}>

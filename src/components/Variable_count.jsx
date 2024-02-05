@@ -5,7 +5,7 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useMantineTheme } from "@mantine/core";
 
-const Variable_count = ({ data, color, color2 }) => {
+const Variable_count = ({ data, color, color2, name }) => {
   const theme = useMantineTheme();
   // console.log("sData:", data);
 
