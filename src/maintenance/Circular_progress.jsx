@@ -9,20 +9,15 @@ const Circular_progress = ({ data }) => {
   return (
     <div
       style={{
-        width: "70%",
-        height: "20%",
+        width: "100%",
+        height: "20vh",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        margin: "22px 33px ", // Adjust margins as needed
-        padding: "35px ", // Adjust paddings as needed
       }}
     >
       <CircularProgressbar
         value={data}
-        text={`${data}%`}
-        maxValue={100}
+        text={`${data}`}
+        maxValue={10000}
         circleRatio={1}
         styles={{
           trail: {
@@ -41,7 +36,7 @@ const Circular_progress = ({ data }) => {
             fill: theme.colorScheme === "dark" ? "white" : "#339af0",
           },
         }}
-        strokeWidth={15}
+        strokeWidth={10}
       />
     </div>
   );

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Each_slave_layout from "./components/Each_slave_layout";
-import { Grid, Button, Text, Card } from "@mantine/core";
+import { Grid, Button, Text, Card, Divider, Badge } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import TableComponent from "./components/Table_comp";
+import useErrorList from "./maintenance/useErrorList";
 
 const Repeter_1 = () => {
   const navigate = useNavigate();
@@ -135,6 +136,14 @@ const Repeter_1 = () => {
     fetchData();
   }, []);
 
+  const apiVal = "http://192.168.10.251:3000/api/error_table";
+
+  const startSlaveId = "sl-1";
+  const endSlaveID = "sl-100";
+
+  const errorValues = useErrorList(apiVal, startSlaveId, endSlaveID);
+  const errorTableData = errorValues.filteredData;
+
   const columns = {
     id: "ID",
     device_name: "Device Name",
@@ -150,6 +159,17 @@ const Repeter_1 = () => {
     "next_maintenance_date",
     "Issues",
   ];
+
+  const cols = {
+    id: "ID",
+    slave_id: "Slave ID",
+
+    error_date: "Error Date",
+
+    error_time: "Error Time",
+  };
+
+  const visCols = ["id", "slave_id", "error_date", "error_time"];
 
   const handleButtonClick = () => {
     console.log("button clicked");
@@ -167,6 +187,56 @@ const Repeter_1 = () => {
       >
         Overview
       </Button>
+      <Grid mb="xl">
+        <Grid.Col md={1.5} lg={1.5}></Grid.Col>
+        <Grid.Col md={3} lg={3}>
+          <Card withBorder radius="lg" shadow="xl" padding="md">
+            <Grid justify="flex-start" align="stretch">
+              <Grid.Col md={4} lg={2}>
+                <Badge color="pink" size="xl" variant="light">
+                  {" "}
+                  Total
+                </Badge>
+              </Grid.Col>
+              <Grid.Col md={8} lg={8}>
+                <Text ta="center" size="xl" fw={800} td="underline">
+                  Total Errors
+                </Text>
+                <Text ta="center" mt="xl" fw={800}>
+                  {errorValues.totalCount}
+                </Text>
+              </Grid.Col>
+
+              <Grid.Col md={1} lg={2}></Grid.Col>
+            </Grid>
+          </Card>
+        </Grid.Col>
+        <Grid.Col md={3} lg={3}></Grid.Col>
+        <Grid.Col md={3} lg={3}>
+          <Card withBorder radius="lg" shadow="xl" padding="md">
+            <Grid justify="flex-start" align="stretch">
+              <Grid.Col md={4} lg={2}>
+                <Badge color="pink" size="xl" variant="light">
+                  {" "}
+                  Max
+                </Badge>
+              </Grid.Col>
+              <Grid.Col md={8} lg={8}>
+                <Text ta="center" size="xl" fw={800} td="underline">
+                  slave: {errorValues.maxSlaveId}
+                </Text>
+                <Text ta="center" mt="xl" size="lg" fw={700}>
+                  Count : {errorValues.maxCount}
+                </Text>
+              </Grid.Col>
+
+              <Grid.Col md={1} lg={2}></Grid.Col>
+            </Grid>
+          </Card>
+        </Grid.Col>
+        <Grid.Col md={2} lg={1.5}></Grid.Col>
+      </Grid>
+      <Divider />
       <div>
         <Grid mb="xl">
           <Grid.Col md={2} lg={1}></Grid.Col>
@@ -182,9 +252,9 @@ const Repeter_1 = () => {
           <Grid.Col md={4} lg={4}>
             <h1>Error Details</h1>
             <TableComponent
-              data={inventoryData}
-              columns={columns}
-              visibleColumns={visibleColumns}
+              data={errorTableData}
+              columns={cols}
+              visibleColumns={visCols}
             />
           </Grid.Col>
           <Grid.Col md={2} lg={1}></Grid.Col>

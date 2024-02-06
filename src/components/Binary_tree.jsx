@@ -29,12 +29,12 @@ const applyErrorStyles = (nodes, uniqueErrorIds, setNodes) => {
   );
 
   console.log("matching nodes", matchingNodeIds);
-  notifications.show({
-    title: "Request Failed",
-    message: `An Error has occured in slave ${uniqueErrorIds}`,
-    color: "red",
-    icon: <AlertCircle size={24} color="black" />,
-  });
+  // notifications.show({
+  //   title: "Request Failed",
+  //   message: `An Error has occured in slave ${uniqueErrorIds}`,
+  //   color: "red",
+  //   icon: <AlertCircle size={24} color="black" />,
+  // });
 
   setNodes((prevNodes) =>
     prevNodes.map((node) =>
@@ -69,6 +69,7 @@ const BinaryTree = () => {
   const [errorValues, setErrorValues] = useState([]);
   const [liveErrors, setLiveErrors] = useState([]);
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const [acknowledgedErrors, setAcknowledgedErrors] = useState([]);
 
   const [mac_id, setMAC] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
@@ -145,6 +146,8 @@ const BinaryTree = () => {
 
       if (slaveValueData === "ERROR") {
         const timestamp = new Date().getTime();
+        const timeGot = new Date(timestamp).toLocaleString();
+        console.log("Time stamp of error", timeGot);
 
         const errorsWithAssociatedNode = [slaveId].map((error) => {
           const slaveId = parseInt(error.split("-")[1]);
@@ -170,7 +173,7 @@ const BinaryTree = () => {
         try {
           await axios.post("http://localhost:3000/api/error-data", {
             slave_id: slaveId,
-            error_time: new Date(timestamp).toISOString(),
+            error_time_val: timeGot,
           });
         } catch (error) {
           console.error("Error sending error data to server:", error);
@@ -178,7 +181,10 @@ const BinaryTree = () => {
 
         setLiveErrors((prevErrors) => [...prevErrors, ...finalErrorValues]);
 
-        const tenMinutesAgo = timestamp - 10 * 60 * 1000;
+        const tenMinutesAgo = new Date(
+          timestamp - 10 * 60 * 1000
+        ).toLocaleString();
+        console.log("time", tenMinutesAgo);
 
         setLiveErrors((prevErrors) =>
           prevErrors.filter((error) => error.timestamp > tenMinutesAgo)
@@ -220,6 +226,16 @@ const BinaryTree = () => {
     newNode: NewNode,
   };
 
+  const resetStateAndFetchData = async () => {
+    console.log("trying to reset");
+    console.log("initial node", initialNodes);
+    setNodes(initialNodes); // Reset nodes to initial state
+    setEdges(initialEdges); // Reset edges to initial state
+    setShowSlaveTable(false); // Hide the slave table
+
+    // Fetch new data after resetting the state
+  };
+
   return (
     <div style={{ height: "680px", width: "100%" }}>
       <div>
@@ -244,6 +260,7 @@ const BinaryTree = () => {
         <SlaveTable
           errorValues={liveErrors}
           onClose={() => setShowSlaveTable(false)}
+          onForceError={() => resetStateAndFetchData()}
         />
       )}
       <ReactFlow

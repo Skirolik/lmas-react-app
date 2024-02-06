@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   AppShell,
   Burger,
@@ -27,6 +27,7 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
+import axios from "axios";
 
 import { Logout } from "tabler-icons-react";
 
@@ -74,6 +75,40 @@ import Maintenance from "./Maintenance";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(true);
+  const errorSound = new Audio("../src/assets/alarm.mp3");
+
+  useEffect(() => {
+    const socket = new WebSocket(`ws://127.0.0.1:2000`);
+
+    socket.onopen = () => {
+      console.log("Websoclet connection established in App.jsx");
+    };
+
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      console.log("data from websocket", data);
+      const [slaveId, masterValue, slaveValueData] = data;
+
+      if (slaveValueData === "ERROR") {
+        errorSound.pause();
+        errorSound.currentTime = 0;
+        errorSound.play();
+        notifications.clean();
+        notifications.show({
+          title: "Error Occured!",
+          message: `Error Occured in slave, check The plant overView`,
+          color: "red",
+        });
+      }
+    };
+    socket.onclose = () => {
+      console.log("websocket connection closed");
+    };
+    return () => {
+      console.log("Cleaning up WebSocket connection");
+      socket.close();
+    };
+  }, []);
 
   const handleLogin = () => {
     // Perform login logic here...
@@ -156,7 +191,7 @@ function App() {
       width: "100%",
 
       padding: theme.spacing.xs,
-      marginTop: "8px",
+
       borderRadius: theme.radius.md,
       color: colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
       textDecoration: "none",
@@ -181,7 +216,7 @@ function App() {
     NestedLink: {
       width: "100%",
       padding: theme.spacing.md,
-      marginTop: "4px",
+      marginTop: "3px",
       borderRadius: theme.radius.md,
       color: colorScheme === "dark" ? "white" : "black",
       backgroundColor:
@@ -200,10 +235,10 @@ function App() {
         colorScheme === "dark" ? theme.colors.violet[4] : theme.colors.blue[2],
     },
     LargeFont: {
-      fontSize: "1.4rem", // Adjust the font size as needed
+      fontSize: "1rem", // Adjust the font size as needed
     },
     Largedata: {
-      fontSize: "1.1rem", // Adjust the font size as needed
+      fontSize: "1rem", // Adjust the font size as needed
     },
   }));
 
@@ -233,13 +268,13 @@ function App() {
             >
               <Navbar.Section mt="xs"></Navbar.Section>
 
-              <Navbar.Section grow mt="md">
+              <Navbar.Section grow mt="md" component={ScrollArea}>
                 {views.map((view, index) => (
                   <Link
                     to={view.path}
                     key={index}
                     onClick={() => setOpened(false)}
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     <Group>
                       <span>{view.logo}</span>
@@ -257,85 +292,75 @@ function App() {
                 >
                   <Link
                     to="/maintenance/Summary"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Summary</Text>
+                    <Text fz="md">Summary</Text>
                   </Link>
 
                   <Link
                     to="/maintenance/Board"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Board</Text>
+                    <Text fz="md">Board</Text>
                   </Link>
                   <Link
                     to="/maintenance/Inventory"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Inventory</Text>
+                    <Text fz="md">Inventory</Text>
                   </Link>
                   <Link
                     to="/maintenance/Error_issues"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Error History</Text>
+                    <Text fz="md">Error History</Text>
                   </Link>
-                  <Link
-                    to="/maintanance"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
-                  >
+                  <Link to="/maintanance" className={`${classes.NavLink} `}>
                     {" "}
-                    <Text fz="lg">EarthPit Data</Text>
+                    <Text fz="md">EarthPit Data</Text>
                   </Link>
                 </NavLink>
-              </Navbar.Section>
-              <Navbar.Section grow component={ScrollArea}>
                 <NavLink
                   label={<Text className={classes.Largedata}>Layout</Text>}
                   icon={<IconGeometry stroke={2} />}
                   childrenOffset={25}
                   defaultClosed
-                  className={` ${classes.NestedLink} ${classes.NestedLinkActive} ${classes.LargeFont} `}
+                  className={` ${classes.NestedLink}  `}
                 >
-                  <Link
-                    to="/repeter_1"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
-                  >
+                  <Link to="/repeter_1" className={`${classes.NavLink} `}>
                     {" "}
-                    <Text fz="lg">Repeter-1</Text>
+                    <Text fz="md">Repeter-1</Text>
                   </Link>
                   <Link
                     to="/repeters/Repeter_2"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Repeter-2</Text>
+                    <Text fz="md">Repeter-2</Text>
                   </Link>
                   <Link
                     to="/repeters/Repeter_3"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Repeter-3</Text>
+                    <Text fz="md">Repeter-3</Text>
                   </Link>
                   <Link
                     to="/repeters/Repeter_4"
-                    className={`${classes.NavLink} ${classes.NavLinkActive}`}
+                    className={`${classes.NavLink} `}
                   >
                     {" "}
-                    <Text fz="lg">Repeter-4</Text>
+                    <Text fz="md">Repeter-4</Text>
                   </Link>
                 </NavLink>
               </Navbar.Section>
 
               <Navbar.Section>
-                <Divider size="lg" mb="xl" />
-                <Users />
-
+                <Divider size="lg" mb="xl" mt="xl" /> <Users />
                 <Button
                   leftIcon={<Logout />}
                   variant="outline"

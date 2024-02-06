@@ -26,6 +26,8 @@ import Calender from "./components/Calender";
 import useWebsocket from "./components/useWebsocket";
 
 import Summary_timeline from "./maintenance/Summary_timeline";
+import Circular_progress from "./maintenance/Circular_progress";
+import useErrorList from "./maintenance/useErrorList";
 
 function Home() {
   const theme = useMantineTheme();
@@ -160,6 +162,14 @@ function Home() {
     navigate("/Lmas");
   };
 
+  const apiVal = "http://192.168.10.251:3000/api/error_table";
+
+  const errorValues = useErrorList(apiVal);
+
+  const handleErrorClick = () => {
+    navigate("/maintenance/Error_issues");
+  };
+
   return (
     <>
       <Grid mb="xl">
@@ -180,26 +190,9 @@ function Home() {
 
       <Grid mt="xl" mb="xl">
         <Grid.Col md={1} lg={1}></Grid.Col>
-        <Grid.Col md={4} lg={4}>
-          <Card withBorder radius="lg" shadow="xl" padding="md">
-            <div onClick={handleClick} style={{ cursor: "pointer" }}>
-              <Text ta="center" fw={700} td="underline" size="xl">
-                {" "}
-                Testing
-              </Text>
-            </div>
-
-            <Summary_timeline />
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col md={2} lg={6}>
-          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+        <Grid.Col md={4} lg={5}>
+          <Card shadow="xl" padding="lg" radius="lg" withBorder>
             <div onClick={handleOverClick} style={{ cursor: "pointer" }}>
-              <Text ta="center" fw={700} td="underline" size="xl">
-                {" "}
-                OverView
-              </Text>
               <Center>
                 <Battery_status
                   data={transformerData}
@@ -223,23 +216,47 @@ function Home() {
             </div>
           </Card>
         </Grid.Col>
+
+        <Grid.Col md={2} lg={5}>
+          {" "}
+          <Card
+            shadow="xl"
+            padding="lg"
+            radius="md"
+            withBorder
+            style={{ height: "100%" }}
+          >
+            <Text fw={800} ta="center" td="underline" size="xl" mb="lg">
+              Slave Error Count
+            </Text>
+            <div onClick={handleErrorClick} style={{ cursor: "pointer" }}>
+              <Circular_progress data={errorValues.totalCount} />
+            </div>
+          </Card>
+        </Grid.Col>
         <Grid.Col md={2} lg={2}></Grid.Col>
         <Grid.Col md={2} lg={2}></Grid.Col>
         <Grid.Col md={2} lg={1}></Grid.Col>
       </Grid>
-      <Grid>
+
+      <Grid mb="xl">
         <Grid.Col md={1} lg={1}></Grid.Col>
-        <Grid.Col md={12} lg={10}>
+        <Grid.Col md={6} lg={5}>
           {" "}
-        </Grid.Col>
-        <Grid.Col md={1} lg={1}></Grid.Col>
-      </Grid>
-      <Grid>
-        <Grid.Col md={1} lg={1}></Grid.Col>
-        <Grid.Col md={10} lg={10}>
-          {" "}
-          <Card mt="xl" shadow="xl" padding="lg" radius="lg" withBorder>
+          <Card shadow="xl" padding="xs" radius="lg" withBorder>
             <Lmap data={mapData} />
+          </Card>
+        </Grid.Col>
+        <Grid.Col md={4} lg={5}>
+          <Card withBorder radius="lg" shadow="xl" padding="md">
+            <div onClick={handleClick} style={{ cursor: "pointer" }}>
+              <Text ta="center" fw={700} td="underline" size="xl">
+                {" "}
+                Testing
+              </Text>
+            </div>
+
+            <Summary_timeline />
           </Card>
         </Grid.Col>
         <Grid.Col md={1} lg={1}></Grid.Col>

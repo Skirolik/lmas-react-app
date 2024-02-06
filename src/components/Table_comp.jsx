@@ -11,7 +11,7 @@ import {
 import { DatePicker } from "@mantine/dates";
 
 const TableComponent = ({ data, columns, visibleColumns }) => {
-  console.log("col", columns);
+  console.log("cols", columns);
   const theme = useMantineTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({});

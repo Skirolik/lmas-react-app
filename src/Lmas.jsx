@@ -98,7 +98,6 @@ const Lmas = () => {
   return (
     <>
       <Grid mb="xl">
-        <h1>Lmas</h1>
         <Grid.Col md={2} lg={1}></Grid.Col>
         <Grid.Col md={10} lg={10}>
           <Progress_bar

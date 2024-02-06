@@ -14,7 +14,9 @@ import React, { useEffect, useState } from "react";
 import Summary_timeline from "./Summary_timeline";
 import useBoardValues from "./useBoardValues";
 import useIssueValues from "./useIssueValues";
+import useErrorList from "./useErrorList";
 import Circular_progress from "./Circular_progress";
+import Battery_status from "../components/Battery_status";
 import jsPDF from "jspdf";
 
 import { Link, useNavigate } from "react-router-dom";
@@ -22,7 +24,6 @@ import axios from "axios";
 
 import Responseive_pie from "./Responseive_pie";
 import Checklist from "./Checklist";
-import html2pdf from "html2pdf.js";
 
 const Summary = () => {
   const theme = useMantineTheme();
@@ -33,6 +34,12 @@ const Summary = () => {
   const apiCall = "http://192.168.10.251:3000/api/inventory";
   const { inventoryData, totalEntries, totalIssues, diffrence } =
     useIssueValues(apiCall);
+
+  const apiVal = "http://192.168.10.251:3000/api/error_table";
+
+  const errorValues = useErrorList(apiVal);
+
+  console.log("Error Table", errorValues);
 
   const dataValue = [
     { id: "With Issues", label: "With Issues", value: totalIssues },
@@ -48,6 +55,10 @@ const Summary = () => {
   };
 
   const handleButtonClick = () => {
+    navigate("/maintenance/Error_issues");
+  };
+
+  const handleErrorClick = () => {
     navigate("/maintenance/Error_issues");
   };
 
@@ -127,7 +138,7 @@ const Summary = () => {
             <Text fw={800} ta="center" td="underline" size="xl">
               Issues Overview
             </Text>
-            <div onClick={handleButtonClick}>
+            <div onClick={handleButtonClick} style={{ cursor: "pointer" }}>
               <Responseive_pie chartData={dataValue} />
             </div>
           </Card>
@@ -136,6 +147,28 @@ const Summary = () => {
           {" "}
         </Grid.Col>
       </Grid>
+      <Grid mt="xl">
+        <Grid.Col md={3} lg={2}></Grid.Col>
+        <Grid.Col md={2} lg={8}>
+          <Card
+            shadow="xl"
+            padding="lg"
+            radius="md"
+            withBorder
+            style={{ height: "100%" }}
+          >
+            <Text fw={800} ta="center" td="underline" size="xl" mb="lg">
+              Total Error Count
+            </Text>
+            <div onClick={handleErrorClick} style={{ cursor: "pointer" }}>
+              <Circular_progress data={errorValues.totalCount} />
+            </div>
+          </Card>
+        </Grid.Col>
+        <Grid.Col md={2} lg={2}></Grid.Col>
+        <Grid.Col md={2} lg={1}></Grid.Col>
+      </Grid>
+
       <Grid mt="xl">
         <Grid.Col md={3} lg={2}></Grid.Col>
         <Grid.Col md={7} lg={8}>

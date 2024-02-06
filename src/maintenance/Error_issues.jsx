@@ -17,6 +17,7 @@ import { CircleCheck, AlertCircle } from "tabler-icons-react";
 const Error_issues = () => {
   const theme = useMantineTheme();
   const [inventoryData, setInventoryData] = useState([]);
+  const [errorData, setErrorData] = useState([]);
   const [totlaEntries, setTotalEnteries] = useState(0);
   const [totalIssues, setTotalIssues] = useState(0);
   const [diffrence, setDiffrence] = useState(0);
@@ -55,6 +56,16 @@ const Error_issues = () => {
     } catch (error) {
       console.log("Couldnt Fetch", error);
     }
+    try {
+      const response = await axios.get(
+        "http://192.168.10.251:3000/api/error_table"
+      );
+      const data = response.data;
+      console.log("error table data", data);
+      setErrorData(data);
+    } catch (error) {
+      console.log("Error fetching error Table", error);
+    }
   };
   const isInvalidValue = (value) => {
     const invalidValues = ["na", "n a ", "NA", "n/a", "none", "n o n e "];
@@ -82,6 +93,17 @@ const Error_issues = () => {
     "next_maintenance_date",
     "Issues",
   ];
+
+  const cols = {
+    id: "ID",
+    slave_id: "Slave ID",
+
+    error_date: "Error Date",
+
+    error_time: "Error Time",
+  };
+
+  const visCols = ["id", "slave_id", "error_date", "error_time"];
 
   const col = {
     id: "ID",
@@ -137,9 +159,9 @@ const Error_issues = () => {
             </Text> */}
             <h1>Error History</h1>
             <TableComponent
-              data={inventoryData}
-              columns={columns}
-              visibleColumns={visibleColumns}
+              data={errorData}
+              columns={cols}
+              visibleColumns={visCols}
             />
           </Grid.Col>
           <Grid.Col md={1} lg={0}></Grid.Col>
