@@ -34,7 +34,13 @@ const Users = () => {
         }}
       >
         <Group>
-          <Avatar src={null} alt="no image here" radius="xl" />
+          <Avatar
+            src={null}
+            alt="no image here"
+            variant="transparent"
+            size="lg"
+            color="pink"
+          />
           <Box sx={{ flex: 1 }}>
             <Text size="sm" weight={500}>
               Name

@@ -17,8 +17,8 @@ const Radial_bar = ({ data, color, color2, name }) => {
     const calculateProgress = () => {
       const currentDate = new Date();
       const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(currentDate.getDate() - 30);
-      // console.log("3o days ago", thirtyDaysAgo);
+      thirtyDaysAgo.setDate(currentDate.getDate() - 360);
+      console.log("3o days ago", thirtyDaysAgo);
 
       let count = 0;
 
@@ -40,20 +40,16 @@ const Radial_bar = ({ data, color, color2, name }) => {
 
   const progressData = [{ id: "progress", value: progress }];
   // console.log(progressData);
-  // console.log("hi", totalCount);
+  console.log("hi", totalCount);
 
   return (
     <div
       style={{
-        width: "50%",
-        height: "50%",
-        position: "relative",
-        padding: "10px",
+        width: "100%",
+        height: "20vh",
+        display: "flex",
       }}
     >
-      <Text ta="center" td="underline" mb="sm" fw="800" size="xl">
-        {name}
-      </Text>
       <CircularProgressbar
         value={totalCount}
         text={totalCount}

@@ -191,28 +191,17 @@ function Home() {
       <Grid mt="xl" mb="xl">
         <Grid.Col md={1} lg={1}></Grid.Col>
         <Grid.Col md={4} lg={5}>
-          <Card shadow="xl" padding="lg" radius="lg" withBorder>
+          <Card shadow="xl" padding="xl" radius="lg" withBorder>
             <div onClick={handleOverClick} style={{ cursor: "pointer" }}>
-              <Center>
-                <Battery_status
-                  data={transformerData}
-                  name={"Count"}
-                  color={"#66a80f"}
-                  color2={"#e9fac8"}
-                />
-                <Battery_status
-                  data={transformerData}
-                  name={"Battery"}
-                  color={"#ff6b6b"}
-                  color2={"#ffc9c9"}
-                />
-                <Battery_status
-                  data={envData}
-                  name={"Weather"}
-                  color={"#66a80f"}
-                  color2={"#e9fac8"}
-                />
-              </Center>
+              <Text fw={800} ta="center" td="underline" size="xl" mb="lg">
+                Master count:
+              </Text>
+              <Battery_status
+                data={transformerData}
+                name={"Count"}
+                color={"#66a80f"}
+                color2={"#e9fac8"}
+              />
             </div>
           </Card>
         </Grid.Col>
@@ -226,10 +215,10 @@ function Home() {
             withBorder
             style={{ height: "100%" }}
           >
-            <Text fw={800} ta="center" td="underline" size="xl" mb="lg">
-              Slave Error Count
-            </Text>
             <div onClick={handleErrorClick} style={{ cursor: "pointer" }}>
+              <Text fw={800} ta="center" td="underline" size="xl" mb="lg">
+                Slave Error Count
+              </Text>
               <Circular_progress data={errorValues.totalCount} />
             </div>
           </Card>
